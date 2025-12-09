@@ -1,0 +1,47 @@
+.btn-primary {
+  color: #fff;
+  background-color: #0e593a;
+  border-color: #0e593a;
+  box-shadow: 0 0.125rem 0.25rem 0 #0e593a
+}
+.btn-primary:focus {
+  background-color: green;
+  border-color: green;
+  box-shadow: 0 0.125rem 0.25rem 0 green;
+}
+.btn-primary:hover {
+  color: #fff;
+  background-color: #0e593a;
+  border-color: #0e593a;
+  box-shadow: 0 0.125rem 0.25rem 0 #0e593a;
+  transform: translateY(-1px);
+}
+.bg-success{
+  background-color: #008DDA !important;
+}
+.page-item.active .page-link, .page-item.active .page-link:hover, .page-item.active .page-link:focus, .pagination li.active > a:not(.page-link), .pagination li.active > a:not(.page-link):hover, .pagination li.active > a:not(.page-link):focus {
+  border-color: #0e593a;
+  background-color: #0e593a;
+  color: #fff;
+  box-shadow: 0 0.125rem 0.25rem #0e593a;
+}
+.bg-menu-theme .menu-inner > .menu-item.active > .menu-link {
+  /* color: #696cff; */
+  /* background-color: rgba(105, 108, 255, 0.16) !important; */
+  color: white;
+  background-color: #0e593a !important;
+}
+.bg-menu-theme .menu-sub > .menu-item.active > .menu-link:not(.menu-toggle):before {
+  background-color: #0e593a !important;
+  border: 3px solid #e7e7ff !important;
+}
+.bg-menu-theme .menu-inner > .menu-item.active:before {
+  background-color: #0e593a !important;
+}
+#layout-navbar{
+  background-color: #0e593a !important;
+  width :99% !important;
+  height :3rem;
+  /* background-color: #103182 !important; */
+  /* #00502f */
+}
