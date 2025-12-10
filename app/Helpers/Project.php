@@ -133,7 +133,10 @@ class Project
     {
         $c = self::toCarbon($now, $tz);
         $dow = (int) $c->dayOfWeekIso; // 1=Mon .. 7=Sun
-        if (!in_array($dow, [Carbon::MONDAY, Carbon::TUESDAY, Carbon::WEDNESDAY, Carbon::THURSDAY, Carbon::FRIDAY], true)) {
+        // if (!in_array($dow, [Carbon::MONDAY, Carbon::TUESDAY, Carbon::WEDNESDAY, Carbon::THURSDAY, Carbon::FRIDAY], true)) {
+        //     return false;
+        // }
+        if (!in_array($dow, [Carbon::WEDNESDAY, Carbon::THURSDAY, Carbon::FRIDAY], true)) {
             return false;
         }
 

@@ -21,7 +21,8 @@ class BuildMenuIndexData extends MenuAction
         $dayOrder = ['Mon', 'Tue', 'Wed', 'Thu'];
         $windowEligible = in_array(
             $now->dayOfWeekIso,
-            [Carbon::MONDAY, Carbon::TUESDAY, Carbon::WEDNESDAY, Carbon::THURSDAY, Carbon::FRIDAY],
+            // [Carbon::MONDAY, Carbon::TUESDAY, Carbon::WEDNESDAY, Carbon::THURSDAY, Carbon::FRIDAY],
+            [Carbon::WEDNESDAY, Carbon::THURSDAY, Carbon::FRIDAY],
             true
         );
 
