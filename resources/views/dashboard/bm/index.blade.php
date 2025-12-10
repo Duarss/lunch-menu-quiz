@@ -4,44 +4,43 @@
 <div class="space-y-6">
 	<h5 class="mt-3 mb-3">Summary</h5>
 	<div class="row g-3">
-		<x-card-data id="upcoming-ready" title="Menus Ready (Upcoming)" subtitle="Days prepared" icon="bx-calendar" unit="" colour="primary" :value="$stats['upcoming_ready_days'] ?? '0 / 4'" />
-		<x-card-data id="locked-percent" title="Selections Locked" subtitle="Across all picks" icon="bx-lock" unit="%" colour="warning" :value="$stats['locked_percent'] ?? 0" />
-		<x-card-data id="pending-users" title="Pending Selections" subtitle="Users to remind" icon="bx-bell" unit="" colour="primary" :value="$stats['pending_users'] ?? 0" />
-		<x-card-data id="next-export" title="Next Export" subtitle="Scheduled Friday" icon="bx-download" unit="" colour="primary" :value="$stats['next_export_date'] ?? 'Friday'" />
+		@foreach($statCards as $card)
+			<x-card-data
+				:id="$card['id']"
+				title="{{ $card['title'] }}"
+				:subtitle="$card['subtitle']"
+				icon="{{ $card['icon'] }}"
+				unit="{{ $card['unit'] }}"
+				colour="{{ $card['colour'] }}"
+				:value="$card['value']"
+			/>
+		@endforeach
 	</div>
 
-	@php
-		$exportOptions = collect($exportOptions ?? [])->filter(fn($opt) => !empty($opt['report']))->values();
-	@endphp
 	<h5 class="mt-4 mb-3">Export & Reports</h5>
 	<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
 		@foreach($exportOptions as $option)
-			@php
-				$report = $option['report'] ?? null;
-				$label = $option['label'] ?? 'Export';
-				$key = $option['key'] ?? 'export';
-			@endphp
-			@continue(!$report)
-			@if(!$report->exported_at)
-				<x-button :url="route('bm.reports.export', $report->code)" :label="$label" icon="bx-download" />
-			@else
-				<x-card-notification :id="'exported-'.$key" title="Exported" :message="'Week '.$report->code.' exported'" :time="$report->exported_at->format('Y-m-d H:i')" />
+			@if(!empty($option['button']))
+				<x-button :url="$option['button']['url']" :label="$option['button']['label']" :icon="$option['button']['icon']" />
+			@elseif(!empty($option['notification']))
+				<x-card-notification
+					:id="$option['notification']['id']"
+					title="{{ $option['notification']['title'] }}"
+					:message="{{ $option['notification']['message'] }}"
+					:time="{{ $option['notification']['time'] }}"
+				/>
 			@endif
 		@endforeach
-		<x-button :url="route('bm.reports.index')" label="All Reports" icon="bx-file" />
+		<x-button :url="$allReportsUrl" label="All Reports" icon="bx-file" />
 	</div>
-	@if($exportOptions->isNotEmpty())
+	@if(!empty($exportOptions))
 		<div class="d-flex flex-column gap-1 mb-2">
 			@foreach($exportOptions as $option)
-				@php
-					$description = $option['description'] ?? null;
-					$note = $option['note'] ?? null;
-				@endphp
-				@if($description)
-					<div class="small text-muted">{{ $description }}</div>
+				@if(!empty($option['description']))
+					<div class="small text-muted">{{ $option['description'] }}</div>
 				@endif
-				@if($note)
-					<div class="small text-muted fst-italic">{{ $note }}</div>
+				@if(!empty($option['note']))
+					<div class="small text-muted fst-italic">{{ $option['note'] }}</div>
 				@endif
 			@endforeach
 		</div>
@@ -49,8 +48,16 @@
 
 	<h5 class="mt-4 mb-3">Daily Selection Status</h5>
 	<div class="row g-3">
-		@foreach(($selection['days'] ?? []) as $day => $data)
-			<x-card-data :id="'sel-'.$day" :title="$day" :value="$data['completed'] . ' / ' . $data['total']" :subtitle="($data['percent'] ?? 0) . '%'" icon="bx-check-square" unit="" colour="primary" />
+		@foreach($selectionCards as $card)
+			<x-card-data
+				:id="$card['id']"
+				title="{{ $card['title'] }}"
+				:value="$card['value']"
+				:subtitle="$card['subtitle']"
+				icon="{{ $card['icon'] }}"
+				unit="{{ $card['unit'] }}"
+				colour="{{ $card['colour'] }}"
+			/>
 		@endforeach
 	</div>
 
@@ -80,23 +87,30 @@
 
 	<h5 class="mt-4 mb-3">Upcoming Week Prep</h5>
 	<div class="d-flex flex-wrap align-items-start gap-3 mb-3">
-		<x-card-data id="upcoming-code" title="Upcoming Week Code" :value="$upcomingWeek['code'] ?? '—'" subtitle="Identifier" icon="bx-hash" unit="" colour="primary" />
-		<x-card-data id="upcoming-days-ready" title="Days Ready" :value="(($upcomingWeek['days_ready'] ?? 0).' / 4')" subtitle="Full 4 menus" icon="bx-calendar" unit="" colour="primary" />
+		@foreach($upcomingSummaryCards as $card)
+			<x-card-data
+				:id="$card['id']"
+				title="{{ $card['title'] }}"
+				:value="$card['value']"
+				:subtitle="$card['subtitle']"
+				icon="{{ $card['icon'] }}"
+				unit="{{ $card['unit'] }}"
+				colour="{{ $card['colour'] }}"
+			/>
+		@endforeach
 	</div>
 	<div class="card p-3 mb-3">
 		<h6 class="mb-3">Upcoming Week Menus</h6>
-		@php($dayOrder = ['Mon','Tue','Wed','Thu'])
 		<div class="row g-3">
-			@foreach($dayOrder as $label)
-				@php($menus = ($upcomingWeek['days'][$label] ?? []))
+			@foreach($upcomingDayBlocks as $day)
 				<div class="col-md-3">
 					<div class="small text-muted fw-semibold mb-2 d-flex justify-content-between align-items-center">
-						<span>{{ $label }}</span>
-						<span class="badge bg-{{ count($menus)===4 ? 'success' : 'secondary' }}">{{ count($menus) }}/4</span>
+						<span>{{ $day['label'] }}</span>
+						<span class="badge {{ $day['badge_class'] }}">{{ $day['badge_label'] }}</span>
 					</div>
 					<ul class="list-unstyled mb-0 small">
-						@forelse($menus as $m)
-							<li class="mb-1" title="{{ $m['name'] ?? '' }}">{{ Str::limit($m['name'] ?? '',38) }}</li>
+						@forelse($day['menus'] as $menu)
+							<li class="mb-1" title="{{ $menu['name'] }}">{{ $menu['short_name'] }}</li>
 						@empty
 							<li class="text-muted">No menus</li>
 						@endforelse

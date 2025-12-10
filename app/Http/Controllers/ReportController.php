@@ -24,8 +24,9 @@ class ReportController extends Controller
 
         $title = 'Master Report';
         $data = $this->reportService->getIndexData();
+        $role = auth()->user()->role ?? 'guest';
 
-        return view('masters.report.index', array_merge(['title' => $title], $data));
+        return view('masters.report.index', array_merge(['title' => $title, 'role' => $role], $data));
     }
 
     /**

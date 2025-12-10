@@ -70,18 +70,16 @@
 	</div>
 	<div class="card p-3 mb-3">
 		<h6 class="mb-3">Upcoming Week Menus</h6>
-		@php($dayOrder = ['Mon','Tue','Wed','Thu'])
 		<div class="row g-3">
-			@foreach($dayOrder as $label)
-				@php($menus = ($prep['menus'][$label] ?? []))
+			@foreach(($prep['days'] ?? []) as $day)
 				<div class="col-md-3">
 					<div class="small text-muted fw-semibold mb-2 d-flex justify-content-between align-items-center">
-						<span>{{ $label }}</span>
-						<span class="badge bg-{{ count($menus)===4 ? 'success' : 'secondary' }}">{{ count($menus) }}/4</span>
+						<span>{{ $day['label'] ?? '—' }}</span>
+						<span class="badge bg-{{ !empty($day['is_full']) ? 'success' : 'secondary' }}">{{ $day['count'] ?? 0 }}/4</span>
 					</div>
 					<ul class="list-unstyled mb-0 small">
-						@forelse($menus as $m)
-							<li class="mb-1" title="{{ $m['name'] ?? '' }}">{{ Str::limit($m['name'] ?? '',38) }}</li>
+						@forelse(($day['menus'] ?? []) as $menu)
+							<li class="mb-1" title="{{ $menu['name'] ?? '' }}">{{ Str::limit($menu['name'] ?? '', 38) }}</li>
 						@empty
 							<li class="text-muted">No menus</li>
 						@endforelse

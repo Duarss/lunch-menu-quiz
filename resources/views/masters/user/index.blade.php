@@ -1,8 +1,5 @@
 @extends('layouts.app', ['title' => $title])
 
-@php($role = auth()->user()->role ?? 'guest')
-@php($companyOptions = ($companies ?? collect())->toArray())
-
 @section('content')
     @if(in_array($role, ['admin', 'bm']))
         <div class="row">

@@ -1,12 +1,6 @@
 @extends('layouts.app', ['title' => $title ?? 'Master Report'])
 
 @section('content')
-@php
-	$tz = config('app.timezone', 'Asia/Jakarta');
-	$nowTz = \Carbon\Carbon::now($tz);
-	$role = auth()->user()->role ?? 'guest';
-	$currentWeek = $current_week ?? null;
-@endphp
 <div class="space-y-6">
 	<h5 class="mt-3 mb-3">Weekly Report Export</h5>
 
@@ -50,17 +44,12 @@
 						</form>
 					@endif
 				@else
-					@php
-						$pendingWarning = $week['totals']['pending_count'] > 0
-							? sprintf('%d of %d karyawan still have incomplete selections for next week.', $week['totals']['pending_count'], $week['totals']['karyawan'])
-							: '';
-					@endphp
 					<form class="export-form" method="POST"
 						action="{{ route('masterReport.export', ['masterReport' => $week['report']->code]) }}"
 						data-week="{{ $week['code'] }}"
 						data-available="{{ $week['export_available_label'] }}"
 						data-finalizes="{{ $role === 'bm' ? '1' : '0' }}"
-						data-pending-warning="{{ e($pendingWarning) }}">
+						data-pending-warning="{{ e($week['pending_warning'] ?? '') }}">
 						@csrf
 						<button type="submit" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1">
 							<i class="bx bx-download"></i>
@@ -70,8 +59,8 @@
 					@if(!$week['can_export'] && $week['export_disabled_reason'])
 						<small class="text-muted d-block mt-1">{{ $week['export_disabled_reason'] }}</small>
 					@endif
-					@if($pendingWarning)
-						<small class="text-danger d-block mt-1">{{ $pendingWarning }}</small>
+					@if(!empty($week['pending_warning']))
+						<small class="text-danger d-block mt-1">{{ $week['pending_warning'] }}</small>
 					@endif
 					@if($week['export_future_label'])
 						<small class="text-muted d-block mt-1">Previously scheduled for {{ $week['export_future_label'] }}.</small>
@@ -91,37 +80,32 @@
 		</div>
 	@endif
 
-	@if($currentWeek)
-		@php
-			$currentPendingWarning = ($currentWeek['totals']['pending_count'] ?? 0) > 0
-				? sprintf('%d of %d karyawan still have incomplete selections for this week.', $currentWeek['totals']['pending_count'], $currentWeek['totals']['karyawan'])
-				: '';
-		@endphp
+	@if(!empty($current_week))
 		<div class="card p-3 p-md-4 mb-4">
 			<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
 				<div class="flex-grow-1 text-center text-md-start">
-					<div class="fw-semibold">Current Week <code>{{ $currentWeek['code'] }}</code></div>
-					<div class="small text-muted">Lunch range: {{ $currentWeek['range_label'] }}</div>
-					<div class="small text-muted">Export available since: {{ $currentWeek['export_available_label'] }}</div>
+					<div class="fw-semibold">Current Week <code>{{ $current_week['code'] }}</code></div>
+					<div class="small text-muted">Lunch range: {{ $current_week['range_label'] }}</div>
+					<div class="small text-muted">Export available since: {{ $current_week['export_available_label'] }}</div>
 					<div class="mt-2 d-flex flex-column flex-sm-row flex-wrap align-items-center justify-content-center justify-content-md-start gap-2">
-						<span class="badge {{ $currentWeek['window']['badge_class'] }}">{{ $currentWeek['window']['status'] }}</span>
-						<small class="text-muted text-center text-md-start">{{ $currentWeek['window']['help'] }}</small>
+						<span class="badge {{ $current_week['window']['badge_class'] }}">{{ $current_week['window']['status'] }}</span>
+						<small class="text-muted text-center text-md-start">{{ $current_week['window']['help'] }}</small>
 					</div>
 				</div>
 				<div class="text-center text-md-end flex-grow-1 flex-md-grow-0">
-					@if(!$currentWeek['export_pending'])
+					@if(!$current_week['export_pending'])
 						<div class="text-success d-inline-flex align-items-center gap-1 fw-semibold">
 							<i class="bx bx-check-circle"></i>
-							<span>Exported {{ $currentWeek['exported_at_label'] }}</span>
+							<span>Exported {{ $current_week['exported_at_label'] }}</span>
 						</div>
-						<div class="small text-muted mt-1">By {{ $currentWeek['exported_by_label'] ?? '—' }}</div>
+						<div class="small text-muted mt-1">By {{ $current_week['exported_by_label'] ?? '—' }}</div>
 						@if($role === 'admin')
 							<form class="export-form mt-2" method="POST"
-								action="{{ route('masterReport.export', ['masterReport' => $currentWeek['report']->code]) }}"
-								data-week="{{ $currentWeek['code'] }}"
-								data-available="{{ $currentWeek['export_available_label'] }}"
+								action="{{ route('masterReport.export', ['masterReport' => $current_week['report']->code]) }}"
+								data-week="{{ $current_week['code'] }}"
+								data-available="{{ $current_week['export_available_label'] }}"
 								data-finalizes="0"
-								@if($currentWeek['export_repeat_message']) data-repeat-warning="{{ e($currentWeek['export_repeat_message']) }}" @endif>
+								@if($current_week['export_repeat_message']) data-repeat-warning="{{ e($current_week['export_repeat_message']) }}" @endif>
 								@csrf
 								<button type="submit" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
 									<i class="bx bx-download"></i>
@@ -131,30 +115,30 @@
 						@endif
 					@else
 						<form class="export-form" method="POST"
-							action="{{ route('masterReport.export', ['masterReport' => $currentWeek['report']->code]) }}"
-							data-week="{{ $currentWeek['code'] }}"
-							data-available="{{ $currentWeek['export_available_label'] }}"
+							action="{{ route('masterReport.export', ['masterReport' => $current_week['report']->code]) }}"
+							data-week="{{ $current_week['code'] }}"
+							data-available="{{ $current_week['export_available_label'] }}"
 							data-finalizes="{{ $role === 'bm' ? '1' : '0' }}"
-							data-pending-warning="{{ e($currentPendingWarning) }}"
-							@if($currentWeek['export_repeat_message']) data-repeat-warning="{{ e($currentWeek['export_repeat_message']) }}" @endif>
+							data-pending-warning="{{ e($current_week['pending_warning'] ?? '') }}"
+							@if($current_week['export_repeat_message']) data-repeat-warning="{{ e($current_week['export_repeat_message']) }}" @endif>
 							@csrf
 							<button type="submit" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
 								<i class="bx bx-download"></i>
 								<span>Export This Week</span>
 							</button>
 						</form>
-						@if(!$currentWeek['can_export'] && $currentWeek['export_disabled_reason'])
-							<small class="text-muted d-block mt-1">{{ $currentWeek['export_disabled_reason'] }}</small>
+						@if(!$current_week['can_export'] && $current_week['export_disabled_reason'])
+							<small class="text-muted d-block mt-1">{{ $current_week['export_disabled_reason'] }}</small>
 						@endif
-						@if($currentPendingWarning)
-							<small class="text-danger d-block mt-1">{{ $currentPendingWarning }}</small>
+						@if(!empty($current_week['pending_warning']))
+							<small class="text-danger d-block mt-1">{{ $current_week['pending_warning'] }}</small>
 						@endif
 					@endif
 				</div>
 			</div>
 			<div class="mt-3 small text-center text-md-start">
-				<div>Selections captured: <strong>{{ $currentWeek['totals']['selections'] }}</strong></div>
-				<div>Pending users: <strong>{{ $currentWeek['totals']['pending_count'] }}</strong> of {{ $currentWeek['totals']['karyawan'] }} karyawan.</div>
+				<div>Selections captured: <strong>{{ $current_week['totals']['selections'] }}</strong></div>
+				<div>Pending users: <strong>{{ $current_week['totals']['pending_count'] }}</strong> of {{ $current_week['totals']['karyawan'] }} karyawan.</div>
 			</div>
 			<div class="small text-muted mt-2 text-center text-md-start">Use this export when distributing the menus being served this week.</div>
 		</div>
@@ -232,64 +216,34 @@
 			</thead>
 			<tbody>
 				@forelse($pending_reports as $pending)
-					@php
-						$pendingMonday = \App\Helpers\Project::mondayFromMonthWeekCode($pending->code, $tz);
-						$pendingAvailable = $pendingMonday->copy()->subDays(3)->startOfDay();
-						$pendingCanExport = $nowTz->greaterThanOrEqualTo($pendingAvailable);
-						$pendingReady = (bool) ($pending->ready_for_export ?? false);
-						$pendingExportedByCurrent = (bool) ($pending->exported_by_current_user ?? false);
-						$pendingCompleted = $pending->pending_completed_users ?? 0;
-						$pendingIncomplete = $pending->pending_pending_users ?? 0;
-						$pendingTotalUsers = $pendingCompleted + $pendingIncomplete;
-						$pendingStatusLabel = $pendingExportedByCurrent ? 'EXPORTED' : ($pendingReady ? 'READY' : 'PENDING');
-						$pendingBadgeClass = $pendingExportedByCurrent ? 'bg-success' : ($pendingReady ? 'bg-info' : 'bg-warning');
-						$pendingWarningMessage = ($pendingIncomplete > 0 && $pendingTotalUsers > 0)
-							? sprintf('%d of %d karyawan still have incomplete selections for this week.', $pendingIncomplete, $pendingTotalUsers)
-							: '';
-						$pendingRepeatMessage = null;
-						if ($pendingExportedByCurrent) {
-							if ($pending->exported_at) {
-								$pendingStatusNote = 'Export scheduled by you for ' . $pending->exported_at->timezone($tz)->format('D, d M Y H:i') . '.';
-							} else {
-								$pendingStatusNote = 'You exported this report earlier in this session.';
-							}
-							$pendingRepeatMessage = $pending->exported_at
-								? sprintf('This report was already exported on %s by %s.', $pending->exported_at->timezone($tz)->format('D, d M Y H:i'), $pending->exporter?->name ?? $pending->exported_by ?? '—')
-								: 'This report was already exported earlier in this session.';
-						} elseif ($pendingReady) {
-							$pendingStatusNote = 'All karyawan have completed their selections.';
-						} else {
-							$pendingStatusNote = null;
-						}
-					@endphp
 					<tr>
-						<td>{{ $pending->code }}</td>
-						<td>{{ $pending->created_at?->timezone($tz)->format('Y-m-d') ?? '—' }}</td>
+						<td>{{ $pending['code'] }}</td>
+						<td>{{ $pending['created_at_label'] }}</td>
 						<td>
-							<span class="badge {{ $pendingBadgeClass }}">{{ $pendingStatusLabel }}</span>
-							@if($pendingStatusNote)
-								<div class="small text-muted mt-1">{{ $pendingStatusNote }}</div>
+							<span class="badge {{ $pending['status_badge_class'] }}">{{ $pending['status_label'] }}</span>
+							@if(!empty($pending['status_note']))
+								<div class="small text-muted mt-1">{{ $pending['status_note'] }}</div>
 							@endif
 						</td>
 						<td>
 							<form class="export-form d-inline" method="POST"
-								action="{{ route('masterReport.export', ['masterReport' => $pending->code]) }}"
-								data-week="{{ $pending->code }}"
-								data-available="{{ $pendingAvailable->format('D, d M Y H:i') }}"
+								action="{{ $pending['export_route'] }}"
+								data-week="{{ $pending['code'] }}"
+								data-available="{{ $pending['available_label'] }}"
 								data-finalizes="{{ $role === 'bm' ? '1' : '0' }}"
-								data-pending-warning="{{ $pendingWarningMessage }}"
-								@if($pendingRepeatMessage) data-repeat-warning="{{ e($pendingRepeatMessage) }}" @endif>
+								data-pending-warning="{{ $pending['pending_warning'] }}"
+								@if(!empty($pending['repeat_warning'])) data-repeat-warning="{{ e($pending['repeat_warning']) }}" @endif>
 								@csrf
 								<button type="submit" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
 									<i class="bx bx-download"></i>
 									<span>Export</span>
 								</button>
 							</form>
-							@if(!$pendingCanExport)
-								<small class="text-muted d-block">Available on {{ $pendingAvailable->format('D, d M Y H:i') }}</small>
+							@if(!$pending['can_export'])
+								<small class="text-muted d-block">Available on {{ $pending['available_label'] }}</small>
 							@endif
-							@if(!$pendingReady && $pendingIncomplete > 0)
-								<small class="text-muted d-block">Incomplete: {{ $pendingIncomplete }} karyawan.</small>
+							@if(!empty($pending['incomplete_summary']))
+								<small class="text-muted d-block">{{ $pending['incomplete_summary'] }}</small>
 							@endif
 						</td>
 					</tr>
@@ -313,9 +267,9 @@
 			<tbody>
 				@forelse($history_reports as $history)
 					<tr>
-						<td>{{ $history->code }}</td>
-						<td>{{ $history->exported_at?->timezone($tz)->format('Y-m-d H:i') ?? '—' }}</td>
-						<td>{{ $history->exporter?->name ?? $history->exported_by ?? '—' }}</td>
+						<td>{{ $history['code'] }}</td>
+						<td>{{ $history['exported_at_label'] }}</td>
+						<td>{{ $history['exported_by_label'] }}</td>
 					</tr>
 				@empty
 					<tr><td colspan="3" class="text-center">No exports recorded yet.</td></tr>

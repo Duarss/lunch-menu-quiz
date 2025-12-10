@@ -27,7 +27,10 @@ class UserController extends Controller
     {
         $title = 'Master Users';
         $companies = Company::orderBy('name')->pluck('name', 'code');
-        return view('masters.user.index', compact('title', 'companies'));
+        $companyOptions = $companies->toArray();
+        $role = auth()->user()->role ?? 'guest';
+
+        return view('masters.user.index', compact('title', 'companyOptions', 'role'));
     }
 
     /**

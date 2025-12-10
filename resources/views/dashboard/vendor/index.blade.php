@@ -3,107 +3,62 @@
 @section('content')
 <div class="space-y-6 mt-3">
 	<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-		<h5 class="mt-3 mb-3 mb-lg-0">Vendor Overview</h5>
-		<x-button :url="route('masterMenu.index')" label="Kelola & Unggah Menu" icon="bx-edit" />
+		<div>
+			<h5 class="mt-3 mb-3 mb-lg-0">Vendor Overview</h5>
+			@if(!empty($vendorName))
+				<div class="small text-muted">{{ $vendorName }}</div>
+			@endif
+		</div>
+		<x-button :url="$uploadUrl" label="Kelola & Unggah Menu" icon="bx-edit" />
 	</div>
-
-	@php
-		$vendorWeekCode      = $summary['week_code'] ?? '—';
-		$vendorRangeLabel    = $summary['range_label'] ?? '—';
-		$filledSlots         = (int) ($summary['filled_slots'] ?? 0);
-		$totalSlots          = (int) ($summary['total_slots'] ?? 0);
-		$remainingSlots      = max(0, (int) ($summary['remaining_slots'] ?? 0));
-		$windowStatus        = trim((string) ($summary['window_status'] ?? 'Pending')) ?: 'Pending';
-		$windowSubtitle      = trim((string) ($summary['window_subtitle'] ?? ''));
-		$progressPercent     = $totalSlots > 0 ? (int) round(($filledSlots / max(1, $totalSlots)) * 100) : 0;
-		$remainingBadgeClass = $remainingSlots === 0 ? 'badge bg-success' : 'badge bg-warning text-dark';
-		$windowStatusNormalized = strtolower($windowStatus);
-		$windowBadgeClass = match ($windowStatusNormalized) {
-			'open'                => 'badge bg-success',
-			'ready', 'ready soon' => 'badge bg-info text-dark',
-			'pending'             => 'badge bg-warning text-dark',
-			'closed'              => 'badge bg-secondary',
-			default               => 'badge bg-secondary',
-		};
-
-		$vendorSlides = collect($dayOrder)
-			->map(fn($label) => [
-				'label' => $label,
-				'day'   => $days[$label] ?? null,
-			])
-			->filter(fn($entry) => !empty($entry['day']))
-			->values();
-
-		// bikin slide, tiap slide berisi max 2 hari
-		$dayChunks = $vendorSlides->chunk(2);
-	@endphp
 
 	{{-- SUMMARY CARD ROW --}}
 	<div class="row g-3 mt-3 mb-3">
-		<div class="col-12 col-md-6 col-xl-3">
-			<div class="card border-0 shadow-sm h-100 vendor-summary-card">
-				<div class="card-body">
-					<div class="small text-muted mb-1">Minggu yang sedang diunggah</div>
-					<div class="fw-semibold mb-1">{{ $vendorWeekCode }}</div>
-					<div class="small text-muted">{{ $vendorRangeLabel }}</div>
-				</div>
-			</div>
-		</div>
+		@foreach($summaryCards as $card)
+			<div class="col-12 col-md-6 col-xl-3">
+				<div class="card border-0 shadow-sm h-100 vendor-summary-card">
+					<div class="card-body">
+						<div class="small text-muted mb-1">{{ $card['title'] }}</div>
+						@if(isset($card['progress']))
+							<div class="d-flex align-items-baseline gap-1 mb-2">
+								<div class="fw-semibold">{{ $card['value'] }}</div>
+								@if(!empty($card['suffix']))
+									<div class="small text-muted">{{ $card['suffix'] }}</div>
+								@endif
+							</div>
+							<div class="progress">
+								<div class="progress-bar bg-primary" role="progressbar"
+									 style="width: {{ $card['progress']['percent'] }}%;"
+									 aria-valuenow="{{ $card['progress']['percent'] }}" aria-valuemin="0" aria-valuemax="100">
+								</div>
+							</div>
+							@if(!empty($card['progress']['label']))
+								<div class="small text-muted mt-1">{{ $card['progress']['label'] }}</div>
+							@endif
+						@elseif(isset($card['badge']))
+							<div class="d-flex align-items-center justify-content-between mb-1">
+								<div class="fw-semibold">{{ $card['value'] }}</div>
+								<span class="{{ $card['badge']['class'] }}">{{ $card['badge']['label'] }}</span>
+							</div>
+						@else
+							<div class="fw-semibold mb-1">{{ $card['value'] }}</div>
+						@endif
 
-		<div class="col-12 col-md-6 col-xl-3">
-			<div class="card border-0 shadow-sm h-100 vendor-summary-card">
-				<div class="card-body">
-					<div class="small text-muted mb-1">Slot terisi</div>
-					<div class="d-flex align-items-baseline gap-1 mb-2">
-						<div class="fw-semibold">{{ $filledSlots }}</div>
-						<div class="small text-muted">/ {{ $totalSlots }}</div>
-					</div>
-					<div class="progress">
-						<div class="progress-bar bg-primary" role="progressbar"
-							 style="width: {{ $progressPercent }}%;"
-							 aria-valuenow="{{ $progressPercent }}" aria-valuemin="0" aria-valuemax="100">
-						</div>
-					</div>
-					<div class="small text-muted mt-1">{{ $progressPercent }}% dari target minggu ini</div>
-				</div>
-			</div>
-		</div>
+						@if(isset($card['suffix']) && !isset($card['progress']))
+							<div class="small text-muted">{{ $card['suffix'] }}</div>
+						@endif
 
-		<div class="col-12 col-md-6 col-xl-3">
-			<div class="card border-0 shadow-sm h-100 vendor-summary-card">
-				<div class="card-body">
-					<div class="small text-muted mb-1">Sisa slot</div>
-					<div class="d-flex align-items-center justify-content-between">
-						<div class="fw-semibold">{{ $remainingSlots }}</div>
-						<span class="{{ $remainingBadgeClass }}">
-							{{ $remainingSlots === 0 ? 'Sudah lengkap' : 'Perlu dilengkapi' }}
-						</span>
-					</div>
-					<div class="small text-muted mt-1">
-						Selesaikan semua slot sebelum window ditutup.
+						@if(!empty($card['subtitle']))
+							<div class="small text-muted mt-1">{{ $card['subtitle'] }}</div>
+						@endif
 					</div>
 				</div>
 			</div>
-		</div>
-
-		<div class="col-12 col-md-6 col-xl-3">
-			<div class="card border-0 shadow-sm h-100 vendor-summary-card">
-				<div class="card-body">
-					<div class="small text-muted mb-1">Status window unggah</div>
-					<div class="d-flex align-items-center justify-content-between mb-1">
-						<div class="fw-semibold">Upload Window</div>
-						<span class="{{ $windowBadgeClass }}">{{ ucfirst($windowStatus) }}</span>
-					</div>
-					<div class="small text-muted">
-						{{ $windowSubtitle ?: 'Ikuti jadwal yang sudah ditentukan oleh admin.' }}
-					</div>
-				</div>
-			</div>
-		</div>
+		@endforeach
 	</div>
 
 	{{-- SLIDER HARI --}}
-	@if($vendorSlides->isEmpty())
+	@if(empty($progressSlides))
 		<div class="alert alert-warning small mb-0">Tidak ada data hari yang perlu diunggah saat ini.</div>
 	@else
 		<div class="d-flex justify-content-between align-items-center gap-2 mb-3 flex-wrap">
@@ -119,89 +74,47 @@
 		<div class="vendor-progress-carousel">
 			<div class="vendor-progress-viewport">
 				<div class="vendor-progress-track">
-					@foreach($dayChunks as $chunk)
+					@foreach($progressSlides as $slide)
 						<div class="vendor-progress-slide">
 							<div class="d-flex flex-column gap-3">
-								@foreach($chunk as $entry)
-									@php
-										$label    = $entry['label'];
-										$day      = $entry['day'];
-										$options  = $day['options'] ?? [];
-										// hitung 3 komponen: nama A, nama B, dan gambar
-										$expectedParts = 3;
-										$completedParts = 0;
-										$optionA = $options['A'] ?? null;
-										$optionB = $options['B'] ?? null;
-										if ($optionA && !empty($optionA['has_menu'])) {
-											$completedParts++;
-										}
-										if ($optionB && !empty($optionB['has_menu'])) {
-											$completedParts++;
-										}
-										// gambar dianggap sama dengan image opsi A
-										$hasImage = $optionA && !empty($optionA['image']);
-										if ($hasImage) {
-											$completedParts++;
-										}
-										$badgeClass = $completedParts === $expectedParts ? 'bg-success' : 'bg-warning';
-										$badgeLabel = sprintf('%d / %d Terpenuhi', $completedParts, $expectedParts);
-									@endphp
-
+								@foreach($slide['days'] as $day)
 									<div class="card border-0 shadow-sm vendor-day-card">
 										<div class="card-body">
 											<div class="d-flex justify-content-between align-items-start mb-3">
 												<div>
-													<div class="fw-semibold">{{ $day['label'] ?? $label }}</div>
+													<div class="fw-semibold">{{ $day['label'] }}</div>
 													@if(!empty($day['date_label']))
 														<div class="small text-muted">{{ $day['date_label'] }}</div>
 													@endif
 												</div>
-												<span class="badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
+												<span class="badge {{ $day['badge_class'] }}">{{ $day['badge_label'] }}</span>
 											</div>
 
-											@if(empty($options))
+											@if(empty($day['has_options']))
 												<div class="text-muted small fst-italic">Belum ada slot menu untuk hari ini.</div>
 											@else
 												<div class="vendor-option-stack">
-													@php
-														$optionList = collect($options)->values();
-													@endphp
-													@foreach($optionList as $option)
-														@php
-															$optionFilled = !empty($option['has_menu']);
-															$statusClass  = $optionFilled ? 'bg-success' : 'bg-secondary';
-															$statusLabel  = $optionFilled ? 'Nama terisi' : 'Nama belum diisi';
-														@endphp
-
+													@foreach($day['option_cards'] as $option)
 														<div class="vendor-option-card border rounded-3 p-3">
 															<div class="d-flex justify-content-between align-items-start gap-3">
 																<div>
-																	<div class="fw-semibold">{{ $option['label'] ?? 'Opsi' }}</div>
-																	<div class="small text-muted">
-																		{{ $optionFilled ? ($option['name'] ?: 'Nama belum tercatat') : 'Segera lengkapi nama menu.' }}
-																	</div>
+																	<div class="fw-semibold">{{ $option['label'] }}</div>
+																	<div class="small text-muted">{{ $option['description'] }}</div>
 																	@if(!empty($option['code']))
 																		<div class="text-muted small"><code>{{ $option['code'] }}</code></div>
 																	@endif
 																</div>
-																<span class="badge {{ $statusClass }} align-self-center">{{ $statusLabel }}</span>
+																<span class="badge {{ $option['badge']['class'] }} align-self-center">{{ $option['badge']['label'] }}</span>
 															</div>
 														</div>
 													@endforeach
 													<div class="vendor-option-card border rounded-3 p-3">
-														@php
-															$imageFilled = $hasImage;
-															$imageStatusClass = $imageFilled ? 'bg-success' : 'bg-secondary';
-															$imageStatusLabel = $imageFilled ? 'Gambar ada' : 'Gambar belum ada';
-														@endphp
 														<div class="d-flex justify-content-between align-items-start gap-3">
 															<div>
-																<div class="fw-semibold">Gambar Menu</div>
-																<div class="small text-muted">
-																	{{ $imageFilled ? 'Sudah ada gambar yang terunggah.' : 'Belum ada gambar untuk menu hari ini.' }}
-																</div>
+																<div class="fw-semibold">{{ $day['image_card']['label'] }}</div>
+																<div class="small text-muted">{{ $day['image_card']['description'] }}</div>
 															</div>
-															<span class="badge {{ $imageStatusClass }} align-self-center">{{ $imageStatusLabel }}</span>
+															<span class="badge {{ $day['image_card']['badge']['class'] }} align-self-center">{{ $day['image_card']['badge']['label'] }}</span>
 														</div>
 													</div>
 												</div>

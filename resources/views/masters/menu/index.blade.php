@@ -2,36 +2,6 @@
 
 @section('content')
 <div class="space-y-6">
-	@php
-		$role = auth()->user()->role ?? 'guest';
-
-		$selectionWindowReady = $selectionWindowReady ?? false;
-		$selectionWindowOpen  = $selectionWindowOpen ?? false;
-		$windowOpen           = $windowOpen ?? $selectionWindowOpen ?? false;
-
-		$creationWeekCode         = $creationWeekCode ?? $weekCode ?? null;
-		$creationRangeStart       = $creationRangeStart ?? null;
-		$creationRangeEnd         = $creationRangeEnd ?? null;
-		$creationAutoAdvanceWeeks = $creationAutoAdvanceWeeks ?? 0;
-		$creationSkippedWeeks     = $creationSkippedWeeks ?? [];
-		$optionsDetailedByDay     = $optionsDetailedByDay ?? [];
-		$optionsByDay             = $optionsByDay ?? [];
-		$days                     = $days ?? [];
-		$vendorDayOrder           = $vendorDayOrder ?? [];
-		$vendorDays               = $vendorDays ?? [];
-		$vendorLabels             = $vendorLabels ?? ['vendorA' => 'Vendor A', 'vendorB' => 'Vendor B'];
-
-		$windowReady  = $windowReady ?? $selectionWindowReady ?? false;
-		$dayOrder     = ['Mon','Tue','Wed','Thu'];
-
-		$tz = config('app.timezone', 'Asia/Jakarta');
-		$todayDowIso = \Carbon\Carbon::now($tz)->dayOfWeekIso;
-		$windowEligible = in_array(
-			$todayDowIso,
-			[\Carbon\Carbon::MONDAY, \Carbon\Carbon::TUESDAY, \Carbon\Carbon::WEDNESDAY, \Carbon\Carbon::THURSDAY, \Carbon\Carbon::FRIDAY],
-			true
-		);
-	@endphp
 
 	@if(in_array($role, ['admin','bm']))
 		{{-- ================= ADMIN / BM LAYOUT ================= --}}
@@ -78,10 +48,6 @@
 
 		{{-- Creation Target Info --}}
 		@if($creationWeekCode)
-			@php
-				$creationStartLabel = $creationRangeStart ? \Carbon\Carbon::parse($creationRangeStart)->format('D, d M Y') : null;
-				$creationEndLabel   = $creationRangeEnd   ? \Carbon\Carbon::parse($creationRangeEnd)->format('D, d M Y')   : null;
-			@endphp
 			<div class="alert alert-info small d-flex flex-column gap-1 mt-3">
 				<div>
 					<strong>Next menu additions target:</strong>
@@ -125,9 +91,6 @@
 
 		<div class="position-relative" style="min-height: 520px;">
 			@foreach($dayOrder as $idx => $label)
-				@php
-					$groups = $optionsDetailedByDay[$label] ?? [];
-				@endphp
 				<div
 					class="admin-day-slide @if($idx!==0) d-none @endif"
 					data-day-label="{{ $label }}"
@@ -139,9 +102,9 @@
 						@endif
 					</div>
 
-					@if($groups)
+					@if(!empty($optionsDetailedByDay[$label] ?? []))
 						<div class="row g-3">
-							@foreach($groups as $group)
+							@foreach(($optionsDetailedByDay[$label] ?? []) as $group)
 								<div class="col-md-6">
 									<div class="border rounded p-3 bg-light position-relative" style="height:100%;">
 										<button
@@ -212,20 +175,14 @@
 
 	@elseif($role === 'vendor')
 		{{-- ================= VENDOR LAYOUT ================= --}}
-		@php
-			$vendorLabel = isset($vendorCatering) ? ucfirst($vendorCatering) : 'Vendor';
-			$vendorWeekLabel = $vendorWeekCode ?? $weekCode ?? '—';
-			$vendorRangeLabelStart = $vendorRangeStart ? \Carbon\Carbon::parse($vendorRangeStart)->format('D, d M Y') : null;
-			$vendorRangeLabelEnd   = $vendorRangeEnd   ? \Carbon\Carbon::parse($vendorRangeEnd)->format('D, d M Y')   : null;
-		@endphp
 
-		<h5 class="mt-3 mb-3">Upload Menu - {{ $vendorLabel }}</h5>
+		<h5 class="mt-3 mb-3">Upload Menu - {{ $vendorLabel ?? 'Vendor' }}</h5>
 
 		<div class="alert alert-info small">
 			<div>
 				<strong>Target Week:</strong>
-				<code>{{ $vendorWeekLabel }}</code>
-				@if($vendorRangeLabelStart && $vendorRangeLabelEnd)
+				<code>{{ $vendorWeekLabel ?? '—' }}</code>
+				@if(!empty($vendorRangeLabelStart) && !empty($vendorRangeLabelEnd))
 					<span class="ms-1">({{ $vendorRangeLabelStart }} – {{ $vendorRangeLabelEnd }})</span>
 				@endif
 			</div>
@@ -235,13 +192,13 @@
 			</div>
 		</div>
 
-		@if(empty($vendorDayOrder) || empty($vendorDays))
+		@if(empty($vendorSlides))
 			<div class="alert alert-warning small">Tidak ada minggu yang memerlukan menu baru saat ini.</div>
 		@else
 			<div class="vendor-slider-toolbar d-flex flex-wrap justify-content-between align-items-center mb-3">
 				<div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2">
-					<span class="badge bg-light text-dark text-uppercase">Week {{ $vendorWeekLabel }}</span>
-					@if($vendorRangeLabelStart && $vendorRangeLabelEnd)
+					<span class="badge bg-light text-dark text-uppercase">Week {{ $vendorWeekLabel ?? '—' }}</span>
+					@if(!empty($vendorRangeLabelStart) && !empty($vendorRangeLabelEnd))
 						<span class="text-muted small">{{ $vendorRangeLabelStart }} – {{ $vendorRangeLabelEnd }}</span>
 					@endif
 				</div>
@@ -259,116 +216,58 @@
 
 			<div class="vendor-slider-wrapper">
 				<div class="vendor-slider-track">
-					@foreach($vendorDayOrder as $vendorDayLabel)
-						@php
-							$vendorDay = $vendorDays[$vendorDayLabel] ?? null;
-						@endphp
-						@if(!$vendorDay)
-							@continue
-						@endif
-						@php
-							$options = $vendorDay['options'] ?? [];
-							$totalOptions = count($options);
-							$completedOptions = 0;
-							foreach ($options as $tempOption) {
-								if (!empty($tempOption['has_menu'])) {
-									$completedOptions++;
-								}
-							}
-							$dayComplete = $totalOptions > 0 && $completedOptions === $totalOptions;
-							$dayBadgeClass = $dayComplete ? 'bg-success' : 'bg-warning text-dark';
-							$dayBadgeText = $dayComplete ? 'Complete' : 'Needs menu';
-						@endphp
+					@foreach($vendorSlides as $vendorSlide)
 						<div class="vendor-slide" data-day-index="{{ $loop->index }}">
-							<div class="card shadow-sm border-0 vendor-day-card h-100" data-day="{{ $vendorDay['day_code'] ?? '' }}">
+							<div class="card shadow-sm border-0 vendor-day-card h-100" data-day="{{ $vendorSlide['day_code'] ?? '' }}">
 								<div class="card-body d-flex flex-column">
 									<div class="d-flex justify-content-between align-items-start mb-3">
 										<div>
-											<div class="fw-semibold">{{ $vendorDay['label'] ?? $vendorDayLabel }}</div>
-											@if(!empty($vendorDay['date_label']))
-												<div class="small text-muted">{{ $vendorDay['date_label'] }}</div>
+											<div class="fw-semibold">{{ $vendorSlide['label'] ?? 'Day' }}</div>
+											@if(!empty($vendorSlide['date_label']))
+												<div class="small text-muted">{{ $vendorSlide['date_label'] }}</div>
 											@endif
 											<div class="small text-muted mt-1 vendor-day-summary">
-												@if($totalOptions)
-													{{ $completedOptions }} dari {{ $totalOptions }} opsi siap
-												@else
-													Belum ada opsi untuk hari ini.
-												@endif
+												{{ $vendorSlide['summary_text'] ?? 'Belum ada opsi untuk hari ini.' }}
 											</div>
 										</div>
-										<span class="badge vendor-day-status {{ $dayBadgeClass }}">{{ $dayBadgeText }}</span>
+										<span class="badge vendor-day-status {{ $vendorSlide['badge_class'] ?? 'bg-warning text-dark' }}">{{ $vendorSlide['badge_text'] ?? 'Needs menu' }}</span>
 									</div>
 									<div class="flex-grow-1">
-										@php
-											$optionA = $options['A'] ?? null;
-										@endphp
 										<div class="mb-3">
 											<label class="form-label small mb-1">Gambar Menu (untuk Opsi A &amp; B)</label>
 											<input type="file" class="form-control form-control-sm vendor-menu-image-day" accept="image/*">
 											<div class="mt-2 vendor-preview-wrapper">
-												@if(!empty($optionA['image_url']))
-													<img src="{{ $optionA['image_url'] }}" alt="{{ $optionA['name'] ?? 'Menu image' }}" class="img-fluid rounded vendor-menu-preview" style="max-height:200px;object-fit:cover;">
+												@if(!empty($vendorSlide['primary_image_url']))
+													<img src="{{ $vendorSlide['primary_image_url'] }}" alt="{{ $vendorSlide['image_alt'] ?? 'Menu image' }}" class="img-fluid rounded vendor-menu-preview" style="max-height:200px;object-fit:cover;">
 												@else
 													<div class="text-muted small fst-italic">Belum ada gambar.</div>
 												@endif
 											</div>
 										</div>
 										<div class="row g-3">
-											<div class="col-12 col-md-6">
-												@php
-													$optionAComplete = $optionA && !empty($optionA['has_menu']);
-													$optionAIcon = $optionAComplete ? 'bx-check-circle' : 'bx-time-five';
-													$optionAIconClass = $optionAComplete ? 'text-success' : 'text-warning';
-													$optionAStateClass = $optionAComplete ? 'is-complete' : 'is-pending';
-												@endphp
-												<div
-													class="vendor-option-card vendor-menu-card {{ $optionAStateClass }}"
-													data-day="{{ $vendorDay['day_code'] ?? '' }}"
-													data-option="A"
-												>
-													<div class="d-flex justify-content-between align-items-center mb-2">
-														<div class="d-flex align-items-center">
-															<i class="bx {{ $optionAIcon }} vendor-option-status-icon {{ $optionAIconClass }} me-2"></i>
-															<span class="fw-semibold">Opsi A</span>
+											@foreach($vendorSlide['options'] as $option)
+												<div class="col-12 col-md-6">
+													<div
+														class="vendor-option-card vendor-menu-card {{ $option['card_state_class'] ?? 'is-pending' }}"
+														data-day="{{ $vendorSlide['day_code'] ?? '' }}"
+														data-option="{{ $option['option_key'] ?? 'A' }}"
+													>
+														<div class="d-flex justify-content-between align-items-center mb-2">
+															<div class="d-flex align-items-center">
+																<i class="bx {{ $option['icon'] ?? 'bx-time-five' }} vendor-option-status-icon {{ $option['icon_class'] ?? 'text-warning' }} me-2"></i>
+																<span class="fw-semibold">{{ $option['label'] ?? 'Opsi' }}</span>
+															</div>
+															<span class="badge vendor-option-status {{ $option['status_badge_class'] ?? 'bg-secondary' }}">
+																{{ $option['status_badge_text'] ?? 'Belum ada' }}
+															</span>
 														</div>
-														<span class="badge vendor-option-status {{ $optionAComplete ? 'bg-success' : 'bg-secondary' }}">
-															{{ $optionAComplete ? 'Sudah ada' : 'Belum ada' }}
-														</span>
-													</div>
-													<div class="mb-2">
-														<label class="form-label small mb-1">Nama Menu A</label>
-														<input type="text" class="form-control form-control-sm vendor-menu-name" value="{{ $optionA['name'] ?? '' }}" placeholder="Masukkan nama menu A">
+														<div class="mb-2">
+															<label class="form-label small mb-1">Nama Menu {{ $option['option_key'] ?? '' }}</label>
+															<input type="text" class="form-control form-control-sm vendor-menu-name" value="{{ $option['name'] ?? '' }}" placeholder="{{ $option['input_placeholder'] ?? 'Masukkan nama menu' }}">
+														</div>
 													</div>
 												</div>
-											</div>
-											<div class="col-12 col-md-6">
-												@php
-													$optionB = $options['B'] ?? null;
-													$optionBComplete = $optionB && !empty($optionB['has_menu']);
-													$optionBIcon = $optionBComplete ? 'bx-check-circle' : 'bx-time-five';
-													$optionBIconClass = $optionBComplete ? 'text-success' : 'text-warning';
-													$optionBStateClass = $optionBComplete ? 'is-complete' : 'is-pending';
-												@endphp
-												<div
-													class="vendor-option-card vendor-menu-card {{ $optionBStateClass }}"
-													data-day="{{ $vendorDay['day_code'] ?? '' }}"
-													data-option="B"
-												>
-													<div class="d-flex justify-content-between align-items-center mb-2">
-														<div class="d-flex align-items-center">
-															<i class="bx {{ $optionBIcon }} vendor-option-status-icon {{ $optionBIconClass }} me-2"></i>
-															<span class="fw-semibold">Opsi B</span>
-														</div>
-														<span class="badge vendor-option-status {{ $optionBComplete ? 'bg-success' : 'bg-secondary' }}">
-															{{ $optionBComplete ? 'Sudah ada' : 'Belum ada' }}
-														</span>
-													</div>
-													<div class="mb-2">
-														<label class="form-label small mb-1">Nama Menu B</label>
-														<input type="text" class="form-control form-control-sm vendor-menu-name" value="{{ $optionB['name'] ?? '' }}" placeholder="Masukkan nama menu B">
-													</div>
-												</div>
-											</div>
+											@endforeach
 										</div>
 										<div class="d-flex justify-content-end mt-3">
 											<button type="button" class="btn btn-primary btn-sm vendor-save-day-button">
@@ -387,36 +286,6 @@
 
 	@else
 		{{-- ================= KARYAWAN LAYOUT ================= --}}
-		@php
-			$totalDays     = 0;
-			$selectedCount = 0;
-			$pendingCount  = 0;
-
-			foreach ($dayOrder as $orderLabel) {
-				$dayEntry = $days[$orderLabel] ?? null;
-				if (!$dayEntry) {
-					continue;
-				}
-
-				$totalDays += 1;
-				if (empty($dayEntry['selected'])) {
-					$pendingCount += 1;
-				} else {
-					$selectedCount += 1;
-				}
-			}
-
-			$windowStatusLabel = $windowOpen
-				? 'Open'
-				: ($windowReady ? 'Ready Soon' : 'Closed');
-
-			$windowStatusBadgeClass = $windowOpen
-				? 'bg-success'
-				: ($windowReady ? 'bg-success text-white' : 'bg-danger');
-			$pendingBadgeClass  = $pendingCount ? 'bg-warning text-white' : 'bg-success';
-			$pendingCardClass   = $pendingCount ? 'card-border-shadow-warning' : 'card-border-shadow-primary';
-			$selectionPercent   = $totalDays ? (int) round(($selectedCount / max(1, $totalDays)) * 100) : 0;
-		@endphp
 
 		<div class="row g-3 mt-4 mb-3">
 			<div class="col-md-6 col-lg-4">
@@ -425,7 +294,7 @@
 						<div class="small text-muted mb-1">Selection Window</div>
 						<div class="d-flex align-items-center justify-content-between">
 							<span class="fw-semibold">Week <code>{{ $weekCode ?? '—' }}</code></span>
-							<span class="badge {{ $windowStatusBadgeClass }}">{{ $windowStatusLabel }}</span>
+							<span class="badge {{ $karyawanSummary['window_status_badge_class'] ?? 'bg-danger' }}">{{ $karyawanSummary['window_status_label'] ?? 'Closed' }}</span>
 						</div>
 						<div class="small text-muted mt-2">
 							@if($windowOpen)
@@ -440,15 +309,15 @@
 				</div>
 			</div>
 			<div class="col-md-6 col-lg-4">
-				<div class="card border-0 shadow-sm h-100 {{ $pendingCardClass }}">
+				<div class="card border-0 shadow-sm h-100 {{ $karyawanSummary['pending_card_class'] ?? '' }}">
 					<div class="card-body py-3">
 						<div class="small text-muted mb-1">Pending Days</div>
 						<div class="d-flex align-items-center justify-content-between">
-							<span class="display-6 fw-semibold" id="label-pending">{{ $pendingCount }}</span>
-							<span class="badge {{ $pendingBadgeClass }}">{{ $pendingCount ? 'Butuh Dipilih' : 'Semua Dipilih' }}</span>
+							<span class="display-6 fw-semibold" id="label-pending">{{ $karyawanSummary['pending_count'] ?? 0 }}</span>
+							<span class="badge {{ $karyawanSummary['pending_badge_class'] ?? 'bg-success' }}">{{ $karyawanSummary['pending_badge_text'] ?? 'Semua Dipilih' }}</span>
 						</div>
 						<div class="small text-muted mt-2">
-							@if($pendingCount)
+							@if(($karyawanSummary['pending_count'] ?? 0) > 0)
 								Select at least one menu for each pending day to finish.
 							@else
 								Every day has a saved choice. You can still make changes while the window is open.
@@ -462,16 +331,16 @@
 					<div class="card-body py-3">
 						<div class="small text-muted mb-1">Saved Choices</div>
 						<div class="d-flex align-items-center justify-content-between">
-							<span class="fw-semibold">{{ $selectedCount }} / {{ $totalDays }}</span>
-							<span class="badge bg-primary">{{ $selectionPercent }}%</span>
+							<span class="fw-semibold">{{ $karyawanSummary['selected_count'] ?? 0 }} / {{ $karyawanSummary['total_days'] ?? 0 }}</span>
+							<span class="badge bg-primary">{{ $karyawanSummary['selection_percent'] ?? 0 }}%</span>
 						</div>
 						<div class="small text-muted mt-2">
-							@if($totalDays === 0)
+							@if(($karyawanSummary['total_days'] ?? 0) === 0)
 								Menus will appear once admin opens the window for this week.
-							@elseif($selectedCount === $totalDays)
+							@elseif(($karyawanSummary['selected_count'] ?? 0) === ($karyawanSummary['total_days'] ?? 0))
 								All lunches covered. Feel free to tweak while the window stays open.
 							@else
-								{{ $pendingCount }} {{ Str::plural('day', $pendingCount) }} still need a choice before Friday.
+								{{ $karyawanSummary['pending_count'] ?? 0 }} {{ Str::plural('day', $karyawanSummary['pending_count'] ?? 0) }} still need a choice before Friday.
 							@endif
 						</div>
 					</div>
@@ -483,12 +352,12 @@
 				Select Menus For Week <code>{{ $weekCode }}</code>
 			</h6>
 
-			@if(isset($rangeStart, $rangeEnd))
+			@if(!empty($rangeStartLabel) && !empty($rangeEndLabel))
 				<p class="small text-muted mb-2">
 					For lunches from
-					<strong>{{ \Carbon\Carbon::parse($rangeStart)->format('D, d M Y') }}</strong>
+					<strong>{{ $rangeStartLabel }}</strong>
 					to
-					<strong>{{ \Carbon\Carbon::parse($rangeEnd)->format('D, d M Y') }}</strong>.
+					<strong>{{ $rangeEndLabel }}</strong>.
 				</p>
 			@endif
 
@@ -496,16 +365,14 @@
 			<div class="d-flex align-items-center justify-content-between mb-2">
 				<div>
 					@foreach($dayOrder as $idx => $label)
-						@php
-							$d = $days[$label];
-						@endphp
+						@continue(empty($days[$label]))
 						<button
 							type="button"
-							class="btn btn-sm me-1 day-tab-btn @if($idx===0) btn-primary @else btn-outline-primary @endif"
+							class="btn btn-sm me-1 day-tab-btn {{ $idx === 0 ? 'btn-primary' : 'btn-outline-primary' }}"
 							data-day-label="{{ $label }}"
 						>
 							{{ $label }}
-							@if(!empty($d['locked']))
+							@if(!empty($days[$label]['locked']))
 								<span class="badge bg-secondary ms-1">Locked</span>
 							@endif
 						</button>
@@ -519,23 +386,19 @@
 
 			<div class="position-relative" style="min-height: 520px;">
 				@foreach($dayOrder as $idx => $label)
-					@php
-						$d      = $days[$label];
-						$groups = $optionsDetailedByDay[$label] ?? [];
-					@endphp
-
+					@continue(empty($days[$label]))
 					<div
-						class="day-slide @if($idx!==0) d-none @endif"
+						class="day-slide {{ $idx !== 0 ? 'd-none' : '' }}"
 						data-day-label="{{ $label }}"
 					>
 						<div class="small fw-semibold mb-2">
 							{{ $label }}
-							@if(!empty($d['date_label']))
-								<span class="text-muted ms-2">{{ $d['date_label'] }}</span>
+							@if(!empty($days[$label]['date_label']))
+								<span class="text-muted ms-2">{{ $days[$label]['date_label'] }}</span>
 							@endif
-							@if(!empty($d['is_holiday']))
+							@if(!empty($days[$label]['is_holiday']))
 								<span class="badge bg-danger ms-1">Libur</span>
-							@elseif(!empty($d['locked']))
+							@elseif(!empty($days[$label]['locked']))
 								<span class="badge bg-secondary ms-1">Locked</span>
 							@endif
 						</div>
@@ -543,23 +406,17 @@
 						<div
 							class="menu-day-column"
 							data-day-label="{{ $label }}"
-							data-date="{{ $d['date'] }}"
+							data-date="{{ $days[$label]['date'] ?? '' }}"
 						>
-							@if(!empty($d['is_holiday']))
+							@if(!empty($days[$label]['is_holiday']))
 								<div class="alert alert-warning small mb-0">
 									Hari ini adalah hari libur. Tidak perlu memilih menu.
 								</div>
-							@elseif($groups)
+							@elseif(!empty($optionsDetailedByDay[$label]))
 								<div class="row g-3">
-									@foreach($groups as $group)
-										@php
-											$isGroupSelected = isset($d['selected'])
-												&& collect($group['menus'])->contains(function($m) use ($d) {
-													return $m['code'] === $d['selected'];
-												});
-										@endphp
+									@foreach(($optionsDetailedByDay[$label] ?? []) as $group)
 										<div class="col-md-6">
-											<div class="menu-select-card border rounded p-3 mb-3 bg-light position-relative @if($isGroupSelected) selected @endif">
+											<div class="menu-select-card border rounded p-3 mb-3 bg-light position-relative {{ !empty($group['is_selected']) ? 'selected' : '' }}">
 												@if(!empty($group['image_url']))
 													<img
 														src="{{ $group['image_url'] }}"
@@ -592,7 +449,7 @@
 																	name="choice-{{ $label }}"
 																	id="choice-{{ $label }}-{{ $menu['code'] }}"
 																	value="{{ $menu['code'] }}"
-																	@checked(isset($d['selected']) && $d['selected'] === $menu['code'])
+																	@checked(!empty($menu['is_selected']))
 																>
 																<label class="form-check-label" for="choice-{{ $label }}-{{ $menu['code'] }}">
 																	{{ Str::limit($menu['name'], 60) }}
@@ -617,7 +474,7 @@
 										</div>
 									@endforeach
 								</div>
-							@else
+								@else
 								<div
 									class="empty-menu-placeholder text-center text-muted px-3 py-5 rounded"
 									data-day-name="{{ $label }}"
@@ -628,7 +485,7 @@
 								</div>
 							@endif
 
-							@if(empty($d['locked']) && $windowOpen && $groups)
+							@if(empty($days[$label]['locked']) && $windowOpen && !empty($optionsDetailedByDay[$label]))
 								<div class="small text-muted mt-1">
 									Choose one menu; use the tabs or Prev/Next to switch days.
 								</div>
