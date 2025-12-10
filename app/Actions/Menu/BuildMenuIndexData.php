@@ -72,7 +72,7 @@ class BuildMenuIndexData extends MenuAction
             dayOrder: $dayOrder,
             rangeStart: $rangeStart,
             rangeEnd: $rangeEnd,
-            windowEligible: $windowEligible
+            windowEligible: $windowEligible,
         );
     }
 

@@ -462,7 +462,7 @@
 													</ul>
 												</div>
 
-												@if($isGroupSelected)
+												@if(!empty($group['is_selected']))
 													<span
 														class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-primary"
 														style="font-size:9px"
