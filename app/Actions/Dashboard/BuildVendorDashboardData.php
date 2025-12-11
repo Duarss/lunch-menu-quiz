@@ -65,7 +65,7 @@ class BuildVendorDashboardData extends MenuAction
 
     private function buildSummaryCards(string $weekCode, string $rangeLabel, int $filledSlots, int $totalSlots, int $progressPercent, int $remainingSlots, string $windowStatus, string $windowSubtitle): array
     {
-        $remainingBadgeClass = $remainingSlots === 0 ? 'badge bg-success' : 'badge bg-warning text-dark';
+        $remainingBadgeClass = $remainingSlots === 0 ? 'badge bg-success' : 'badge bg-warning text-white';
         $remainingBadgeLabel = $remainingSlots === 0 ? 'Sudah lengkap' : 'Perlu dilengkapi';
         $windowBadgeClass = $this->windowBadgeClass($windowStatus);
 
@@ -231,8 +231,8 @@ class BuildVendorDashboardData extends MenuAction
     {
         return match (strtolower($status)) {
             'open' => 'badge bg-success',
-            'ready', 'ready soon' => 'badge bg-info text-dark',
-            'pending' => 'badge bg-warning text-dark',
+            'ready', 'ready soon' => 'badge bg-info text-white',
+            'pending' => 'badge bg-warning text-white',
             'closed' => 'badge bg-secondary',
             default => 'badge bg-secondary',
         };

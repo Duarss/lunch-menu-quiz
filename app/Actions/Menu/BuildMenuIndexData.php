@@ -437,7 +437,7 @@ class BuildMenuIndexData extends MenuAction
                 'summary_text' => $totalOptions
                     ? sprintf('%d dari %d opsi siap', $completedOptions, $totalOptions)
                     : 'Belum ada opsi untuk hari ini.',
-                'badge_class' => $dayComplete ? 'bg-success' : 'bg-warning text-dark',
+                'badge_class' => $dayComplete ? 'bg-success' : 'bg-warning text-white',
                 'badge_text' => $dayComplete ? 'Complete' : 'Needs menu',
                 'options' => $optionList,
                 'option_total' => $totalOptions,

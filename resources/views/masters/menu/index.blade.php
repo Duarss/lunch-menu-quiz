@@ -230,7 +230,7 @@
 												{{ $vendorSlide['summary_text'] ?? 'Belum ada opsi untuk hari ini.' }}
 											</div>
 										</div>
-										<span class="badge vendor-day-status {{ $vendorSlide['badge_class'] ?? 'bg-warning text-dark' }}">{{ $vendorSlide['badge_text'] ?? 'Needs menu' }}</span>
+										<span class="badge vendor-day-status {{ $vendorSlide['badge_class'] ?? 'bg-warning text-white' }}">{{ $vendorSlide['badge_text'] ?? 'Needs menu' }}</span>
 									</div>
 									<div class="flex-grow-1">
 										<div class="mb-3">
@@ -1491,7 +1491,7 @@ const handleWindowStatusChange = (status) => {
 		});
 
 		if (badge) {
-			badge.classList.remove('bg-success', 'bg-warning', 'text-dark');
+			badge.classList.remove('bg-success', 'bg-warning', 'text-white');
 			if (total && completed === total) {
 				badge.classList.add('bg-success');
 				badge.textContent = 'Complete';
@@ -1630,6 +1630,7 @@ const handleWindowStatusChange = (status) => {
 				contentType: false,
 				processData: false,
 				toast: false,
+				loading: false,
 				successCallback: (response) => {
 					const menus = response?.menus || [];
 					if (Array.isArray(menus)) {

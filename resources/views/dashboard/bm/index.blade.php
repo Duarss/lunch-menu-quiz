@@ -26,8 +26,8 @@
 				<x-card-notification
 					:id="$option['notification']['id']"
 					title="{{ $option['notification']['title'] }}"
-					:message="{{ $option['notification']['message'] }}"
-					:time="{{ $option['notification']['time'] }}"
+					:message="$option['notification']['message']"
+					:time="$option['notification']['time']"
 				/>
 			@endif
 		@endforeach
