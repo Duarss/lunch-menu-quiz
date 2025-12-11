@@ -7,6 +7,7 @@ use Illuminate\Http\UploadedFile;
 
 class UpdateCateringImage extends MenuAction
 {
+    // Note: __invoke updates the catering image for menus based on provided data and image
     public function __invoke(array $data, UploadedFile $image): array
     {
         $weekCode = $data['week_code'];

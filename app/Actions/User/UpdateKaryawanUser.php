@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UpdateKaryawanUser extends UserAction
 {
+    // Note: __invoke updates the specified karyawan user with the provided attributes
     public function __invoke(User $user, array $request): User
     {
         return DB::transaction(function () use ($user, $request) {

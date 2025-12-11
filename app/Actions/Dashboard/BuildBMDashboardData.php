@@ -15,6 +15,7 @@ class BuildBMDashboardData extends MenuAction
 {
     private const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu'];
 
+    // Note: __invoke is what gets called when using app(BuildBMDashboardData::class)(...)
     public function __invoke(string $rangeStart, string $rangeEnd, string $weekCode, Carbon $targetMonday, Carbon $now): array
     {
         $tz = config('app.timezone', 'Asia/Jakarta');
@@ -136,6 +137,7 @@ class BuildBMDashboardData extends MenuAction
         ];
     }
 
+    // Note: buildSelectionDays assumes a 4-day work week (Mon-Thu)
     private function buildSelectionDays(string $rangeStart, int $totalUsers): array
     {
         $tz = config('app.timezone', 'Asia/Jakarta');
@@ -166,6 +168,7 @@ class BuildBMDashboardData extends MenuAction
         return $days;
     }
 
+    // Note: buildSelectionCards creates dashboard cards for each selection day
     private function buildSelectionCards(array $selectionDays): array
     {
         $cards = [];
@@ -190,6 +193,7 @@ class BuildBMDashboardData extends MenuAction
         return $cards;
     }
 
+    // Note: findPendingUsers identifies users who have not completed their selections for the week
     private function findPendingUsers(string $rangeStart, string $rangeEnd, string $tz): array
     {
         $employees = User::where('role', 'karyawan')->get(['id', 'username']);
@@ -230,6 +234,7 @@ class BuildBMDashboardData extends MenuAction
         return $pending;
     }
 
+    // Note: calculateLockedPercent computes the percentage of locked selections for the week
     private function calculateLockedPercent(string $rangeStart, string $rangeEnd): int
     {
         $totalSelections = ChosenMenu::whereBetween('chosen_for_day', [$rangeStart, $rangeEnd])->count();
@@ -244,6 +249,7 @@ class BuildBMDashboardData extends MenuAction
         return (int) round(($lockedSelections / max($totalSelections, 1)) * 100);
     }
 
+    // Note: buildUpcomingWeek retrieves menu data for the upcoming week (Mon-Thu)
     private function buildUpcomingWeek(string $weekCode): array
     {
         $records = Menu::where('code', 'like', $weekCode . '-%')
@@ -278,6 +284,7 @@ class BuildBMDashboardData extends MenuAction
         ];
     }
 
+    // Note: matchesDay checks if a menu code corresponds to a specific day in the week
     private function matchesDay(?string $code, string $weekCode, string $dayCode): bool
     {
         if ($code === null) {
@@ -287,6 +294,7 @@ class BuildBMDashboardData extends MenuAction
         return (bool) preg_match('/^' . preg_quote($weekCode, '/') . '-' . $dayCode . '-\\d+$/i', $code);
     }
 
+    // Note: buildUpcomingDayBlocks creates dashboard blocks for each day in the upcoming week  
     private function buildUpcomingDayBlocks(array $days): array
     {
         $blocks = [];
@@ -312,6 +320,7 @@ class BuildBMDashboardData extends MenuAction
         return $blocks;
     }
 
+    // Note: buildExportOptions creates export options for current and upcoming reports
     private function buildExportOptions(Report $currentReport, Report $upcomingReport, Carbon $fridayCutoff, string $tz): array
     {
         $options = [];

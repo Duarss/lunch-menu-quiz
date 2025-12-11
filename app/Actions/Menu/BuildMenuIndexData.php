@@ -10,9 +10,10 @@ use Carbon\Carbon;
 
 class BuildMenuIndexData extends MenuAction
 {
-
+    // Note: __construct injects the BuildVendorIndexData action
     public function __construct(private BuildVendorIndexData $buildVendorIndexData) {}
 
+    // Note: __invoke builds menu index data based on the user's role and current date
     public function __invoke(User $user): array
     {
         $tz = config('app.timezone', 'Asia/Jakarta');
@@ -77,6 +78,7 @@ class BuildMenuIndexData extends MenuAction
         );
     }
 
+    // Note: buildAdminData constructs the data array for admin and bm users
     private function buildAdminData(
         User $user,
         string $weekCode,
@@ -214,6 +216,7 @@ class BuildMenuIndexData extends MenuAction
         ];
     }
 
+    // Note: buildKaryawanData constructs the data array for karyawan users
     private function buildKaryawanData(
         User $user,
         string $weekCode,
@@ -348,6 +351,7 @@ class BuildMenuIndexData extends MenuAction
         ];
     }
 
+    // Note: buildWeekPatterns creates regex patterns for matching menu codes to days
     private function buildWeekPatterns(string $weekCode): array
     {
         return [
@@ -358,6 +362,7 @@ class BuildMenuIndexData extends MenuAction
         ];
     }
 
+    // Note: detectDayLabel identifies the day label (Mon/Tue/Wed/Thu) for a given menu code
     private function detectDayLabel(array $patterns, ?string $code): ?string
     {
         if ($code === null) {
@@ -373,6 +378,7 @@ class BuildMenuIndexData extends MenuAction
         return null;
     }
 
+    // Note: formatDateLabel formats a date string into a more readable label
     private function formatDateLabel(?string $date): ?string
     {
         if (!$date) {
@@ -382,6 +388,7 @@ class BuildMenuIndexData extends MenuAction
         return Carbon::parse($date)->format('D, d M Y');
     }
 
+    // Note: prepareVendorSlides formats the vendor day data into slides for display
     private function prepareVendorSlides(array $vendorDayOrder, array $vendorDays): array
     {
         $slides = [];
@@ -450,6 +457,7 @@ class BuildMenuIndexData extends MenuAction
         return $slides;
     }
 
+    // Note: buildKaryawanSummary creates the summary data for karyawan dashboard
     private function buildKaryawanSummary(array $dayOrder, array $days, bool $windowOpen, bool $windowReady): array
     {
         $totalDays = 0;

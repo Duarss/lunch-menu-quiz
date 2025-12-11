@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class BuildAdminDashboardData extends MenuAction
 {
+    // Note: __invoke is what gets called when using app(BuildAdminDashboardData::class)(...)
     public function __invoke(string $rangeStart, string $rangeEnd, string $weekCode): array
     {
         $totalUsers = User::where('role', 'karyawan')->count();
@@ -66,6 +67,7 @@ class BuildAdminDashboardData extends MenuAction
         ];
     }
 
+    // Note: buildDailyBreakdown assumes a 4-day work week (Mon-Thu)
     private function buildDailyBreakdown(string $rangeStart, int $totalUsers): array
     {
         $tz = config('app.timezone', 'Asia/Jakarta');
@@ -95,6 +97,7 @@ class BuildAdminDashboardData extends MenuAction
         return $breakdown;
     }
 
+    // Note: buildUpcomingWeekMenus is used to show prep status for upcoming week
     private function buildUpcomingWeekMenus(string $weekCode): array
     {
         $records = Menu::where('code', 'like', $weekCode . '-%')
@@ -143,6 +146,7 @@ class BuildAdminDashboardData extends MenuAction
         ];
     }
 
+    // Note: matchesDay checks if a menu code corresponds to a specific day in the week
     private function matchesDay(?string $code, string $weekCode, string $day): bool
     {
         if ($code === null) {
@@ -152,6 +156,7 @@ class BuildAdminDashboardData extends MenuAction
         return (bool) preg_match('/^' . preg_quote($weekCode, '/') . '-' . $day . '-\d+$/i', $code);
     }
 
+    // Note: formatPrepDays prepares the day-wise menu data for dashboard prep view
     private function formatPrepDays(array $days): array
     {
         $labels = ['Mon', 'Tue', 'Wed', 'Thu'];

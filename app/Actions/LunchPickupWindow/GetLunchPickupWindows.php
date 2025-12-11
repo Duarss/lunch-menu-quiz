@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 
 class GetLunchPickupWindows extends LunchPickupWindowAction
 {
+    // Note: __invoke retrieves and returns all lunch pickup windows, ensuring defaults exist
     public function __invoke(): Collection
     {
         $this->ensureDefaultWindows();

@@ -4,6 +4,7 @@ namespace App\Actions\User;
 
 abstract class UserAction
 {
+    // Note: normalizePayload processes the input request to prepare user and company data
     protected function normalizePayload(array $request, bool $forUpdate = false): array
     {
         $username = $request['username'] ?? null;

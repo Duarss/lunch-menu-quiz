@@ -11,6 +11,7 @@ class BuildKaryawanDashboardData
 {
     private const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu'];
 
+    // Note: __invoke is what gets called when using app(BuildKaryawanDashboardData::class)(...)
     public function __invoke(User $user, string $rangeStart, string $rangeEnd, string $weekCode, Carbon $targetMonday, Carbon $now): array
     {
         $tz = config('app.timezone', 'Asia/Jakarta');
@@ -139,6 +140,7 @@ class BuildKaryawanDashboardData
         ];
     }
 
+    // Note: buildDayCards creates dashboard cards for each selection day
     private function buildDayCards(array $days): array
     {
         $statusBadgeMap = [

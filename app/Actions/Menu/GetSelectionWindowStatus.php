@@ -7,6 +7,7 @@ use Carbon\Carbon;
 
 class GetSelectionWindowStatus extends MenuAction
 {
+    // Note: __invoke retrieves the status of the menu selection window for the upcoming week
     public function __invoke(): array
     {
         $tz = config('app.timezone', 'Asia/Jakarta');

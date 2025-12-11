@@ -15,17 +15,18 @@ class DatatableController extends Controller
 
         if ($user->role == 'admin' || $user->role == 'bm' || $user->role == 'karyawan') {
             $query = User::with('company')
-                ->select(['users.name', 'users.username', 'users.role', 'users.updated_at', 'users.company_code'])
-                ->where('role', 'karyawan')
-                ->orWhere('role', 'vendor');
+                ->select(['name', 'username', 'role', 'updated_at', 'company_code'])
+                ->whereIn('role', ['karyawan', 'vendor']);
 
             if ($request->has('search') && !empty($request->search['value'])) {
-                $search = $request->search['value'];
+                $search = strtolower(trim($request->search['value']));
+
                 $query->where(function ($q) use ($search) {
                     $q->where(DB::raw('lower(username)'), 'like', "%{$search}%")
                     ->orWhere(DB::raw('lower(name)'), 'like', "%{$search}%")
                     ->orWhereHas('company', function ($companyQuery) use ($search) {
-                        $companyQuery->where(DB::raw('lower(name)'), 'like', "%{$search}%")
+                        $companyQuery
+                            ->where(DB::raw('lower(name)'), 'like', "%{$search}%")
                             ->orWhere(DB::raw('lower(code)'), 'like', "%{$search}%");
                     });
                 });

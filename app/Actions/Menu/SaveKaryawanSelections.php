@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 
 class SaveKaryawanSelections extends MenuAction
 {
+    // Note: __invoke saves the menu selections for a user for a given week
     public function __invoke(User $user, string $weekCode, array $choices, string $tz): array
     {
         $monday = Project::mondayFromMonthWeekCode($weekCode, $tz);

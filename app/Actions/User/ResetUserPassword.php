@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 
 class ResetUserPassword extends UserAction
 {
+    // Note: __invoke resets the user's password to their username
     public function __invoke(User $user): User
     {
         return DB::transaction(function () use ($user) {

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class SaveVendorMenu extends MenuAction
 {
+    // Note: __invoke saves or updates the menu items for a vendor for a given day
     public function __invoke(User $vendor, array $payload, ?UploadedFile $image = null): array
     {
         $tz = config('app.timezone', 'Asia/Jakarta');

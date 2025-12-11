@@ -41,7 +41,9 @@
             </div>
         </div>
     @endif
+@endsection
 
+@section('modal')
     @if(in_array($role, ['admin', 'bm']))
         <x-modal id="creadit-modal" title="Kelola Master Karyawan">
             <x-form id="form-creadit">

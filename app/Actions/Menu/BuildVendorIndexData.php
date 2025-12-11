@@ -9,6 +9,7 @@ use Carbon\Carbon;
 
 class BuildVendorIndexData extends MenuAction
 {
+    // Note: __invoke builds vendor-specific index data for menu selection
     public function __invoke(User $vendor): array
     {
         $tz = config('app.timezone', 'Asia/Jakarta');

@@ -7,6 +7,7 @@ use Illuminate\Http\UploadedFile;
 
 class CreateWeeklyMenu extends MenuAction
 {
+    // Note: __invoke creates a weekly menu entry with the provided data and image
     public function __invoke(array $data, UploadedFile $image): Menu
     {
         if (!empty($data['catering'])) {

@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 
 class CreateKaryawanUser extends UserAction
 {
+    // Note: __invoke creates a new karyawan user with the provided attributes
     public function __invoke(array $request): User
     {
         return DB::transaction(function () use ($request) {

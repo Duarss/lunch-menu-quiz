@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class BuildReportIndexData
 {
+    // Note: __invoke builds the data for the report index view
     public function __invoke(): array
     {
         $tz = config('app.timezone', 'Asia/Jakarta');
@@ -111,6 +112,7 @@ class BuildReportIndexData
         ];
     }
 
+    // Note: buildWeekDataset constructs the dataset for a specific report week
     protected function buildWeekDataset(
         Report $report,
         Carbon $monday,
@@ -240,6 +242,7 @@ class BuildReportIndexData
         ];
     }
 
+    // Note: buildDailyProgress constructs the dataset for daily progress within a week
     protected function buildDailyProgress(Carbon $monday, int $totalUsers): array
     {
         $daily = [];
@@ -271,6 +274,7 @@ class BuildReportIndexData
         return [$daily, $dates];
     }
 
+    // Note: buildPendingUsers identifies users with incomplete selections for the week
     protected function buildPendingUsers(Collection $dayDates, string $rangeStart, string $rangeEnd): array
     {
         $users = User::where('role', 'karyawan')
@@ -305,6 +309,7 @@ class BuildReportIndexData
         return $pending;
     }
 
+    // Note: summarizeWeekCompletion provides a summary of completed and pending users for the week
     protected function summarizeWeekCompletion(Report $report, int $totalKaryawan, string $tz): array
     {
         $monday = Project::mondayFromMonthWeekCode($report->code, $tz);
@@ -338,6 +343,7 @@ class BuildReportIndexData
         ];
     }
 
+    // Note: resolveWindowStatus determines the status of the selection window
     protected function resolveWindowStatus(
         Report $report,
         bool $windowReady,
@@ -374,6 +380,7 @@ class BuildReportIndexData
         return ['Pending', 'bg-secondary', 'Release the window from Master Menu once menus are final.'];
     }
 
+    // Note: transformPendingReport formats a pending report for display
     protected function transformPendingReport(
         Report $report,
         Carbon $now,

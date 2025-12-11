@@ -7,10 +7,11 @@ use Illuminate\Support\Facades\DB;
 
 class DeleteUser extends UserAction
 {
+    // Note: __invoke deletes the specified user from the database
     public function __invoke(User $user): void
     {
-        DB::transaction(static function () use ($user) {
-            $user->delete();
-        });
+        if ($user) {
+            User::where('id', $user->id)->delete();
+        }
     }
 }

@@ -6,6 +6,7 @@ use App\Models\LunchPickupWindow;
 
 class UpdateLunchPickupWindows extends LunchPickupWindowAction
 {
+    // Note: __invoke updates lunch pickup windows based on the provided input array
     public function __invoke(array $windows): void
     {
         foreach (LunchPickupWindow::DAYS as $day) {

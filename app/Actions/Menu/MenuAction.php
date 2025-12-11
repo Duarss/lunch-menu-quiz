@@ -14,8 +14,10 @@ use Illuminate\Support\Str;
 
 abstract class MenuAction
 {
+    // Note: EXPECTED_MENUS_PER_WEEK defines how many menu items are expected per week
     protected const EXPECTED_MENUS_PER_WEEK = 16;
 
+    // Note: CATERING_SLOT_MAP maps catering vendors to their menu slot options
     protected const CATERING_SLOT_MAP = [
         'vendorA' => [
             1 => 'Opsi A',
@@ -27,13 +29,16 @@ abstract class MenuAction
         ],
     ];
 
+    // Note: CATERING_DISPLAY_NAMES provides display names for catering vendors
     protected const CATERING_DISPLAY_NAMES = [
         'vendorA' => 'Vendor A',
         'vendorB' => 'Vendor B',
     ];
 
+    // Note: vendorDisplayCache caches catering display names to avoid repeated lookups
     protected array $vendorDisplayCache = [];
 
+    // Note: normalizeCateringKey standardizes the catering key format
     protected function normalizeCateringKey(string $catering): string
     {
         $sanitized = strtolower(trim($catering));
@@ -63,6 +68,7 @@ abstract class MenuAction
         throw new \InvalidArgumentException('Unsupported catering: ' . $catering);
     }
 
+    // Note: normalizeCatering standardizes the catering key or returns null if empty
     protected function normalizeCatering(?string $catering): ?string
     {
         if ($catering === null || $catering === '') {
@@ -72,6 +78,7 @@ abstract class MenuAction
         return $this->normalizeCateringKey($catering);
     }
 
+    // Note: cateringDisplayName returns the display name for a given catering key
     protected function cateringDisplayName(?string $catering): string
     {
         if ($catering === null || $catering === '') {
@@ -95,9 +102,7 @@ abstract class MenuAction
         return $this->vendorDisplayCache[$normalized];
     }
 
-    /**
-     * @return string[]
-     */
+    // Note: cateringCandidates returns possible catering keys for a normalized catering
     protected function cateringCandidates(string $normalized): array
     {
         return match ($normalized) {
@@ -107,6 +112,7 @@ abstract class MenuAction
         };
     }
 
+    // Note: resolveMenuDate computes the menu date for a given week code and day
     protected function resolveMenuDate(string $weekCode, string $day): string
     {
         $day = strtoupper(trim($day));
@@ -122,6 +128,7 @@ abstract class MenuAction
         return $monday->copy()->addDays($offsets[$day])->toDateString();
     }
 
+    // Note: isHoliday checks if a given date is a holiday to prevent menu selection and creation
     protected function isHoliday(Carbon $date): bool
     {
         if ($date->lt(Carbon::create(2026, 1, 1, 0, 0, 0, $date->getTimezone()))) {
@@ -131,6 +138,7 @@ abstract class MenuAction
         return Holiday::whereDate('substitute_date', $date->toDateString())->exists();
     }
 
+    // Note: imageUrl generates a full URL for a given image path
     protected function imageUrl(?string $path): ?string
     {
         if (!$path) {
@@ -144,11 +152,13 @@ abstract class MenuAction
         return url('storage/' . ltrim($path, '/'));
     }
 
+    // Note: weekMenuCount counts how many menu items exist for a given week code
     protected function weekMenuCount(string $weekCode): int
     {
         return Menu::where('code', 'like', $weekCode . '-%')->count();
     }
 
+    // Note: resolveNextCreationWeek finds the next week needing menu creation starting from a given Monday
     protected function resolveNextCreationWeek(Carbon $startMonday): array
     {
         $candidate = $startMonday->copy();
@@ -185,6 +195,7 @@ abstract class MenuAction
         ];
     }
 
+    // Note: storeImage saves an uploaded image to storage with optional categorization
     protected function storeImage(UploadedFile $image, ?string $weekCode = null, ?string $day = null, ?string $catering = null): string
     {
         $segments = ['menus'];
@@ -221,6 +232,7 @@ abstract class MenuAction
         return $image->storeAs($directory, $filename, 'public');
     }
 
+    // Note: compressImage attempts to compress an image and returns the binary data
     protected function compressImage(UploadedFile $image, string &$extension): ?string
     {
         if (!function_exists('imagecreatefromstring')) {
@@ -271,6 +283,7 @@ abstract class MenuAction
         return $data;
     }
 
+    // Note: cleanupReplacedImages deletes old image files that have been replaced
     protected function cleanupReplacedImages(array $paths, ?string $currentPath = null): void
     {
         $unique = collect($paths)
@@ -290,6 +303,7 @@ abstract class MenuAction
         }
     }
 
+    // Note: vendorLabels returns display labels for all vendors
     protected function vendorLabels(): array
     {
         return [
@@ -298,6 +312,7 @@ abstract class MenuAction
         ];
     }
 
+    // Note: vendorSlotMap returns the slot mapping for a given catering vendor
     protected function vendorSlotMap(string $catering): array
     {
         $normalized = $this->normalizeCateringKey($catering);
@@ -319,11 +334,13 @@ abstract class MenuAction
         return $slots;
     }
 
+    // Note: vendorOptionLabel generates a label for a given vendor option key
     protected function vendorOptionLabel(string $option): string
     {
         return 'Opsi ' . strtoupper($option);
     }
 
+    // Note: resolveVendorCatering determines the catering key for a given vendor user
     protected function resolveVendorCatering(User $vendor): string
     {
         $code = (string) $vendor->company_code;
@@ -343,6 +360,7 @@ abstract class MenuAction
         throw new \RuntimeException('Vendor tidak dikenali. Periksa kode perusahaan pengguna.');
     }
 
+    // Note: formatWeekMenus organizes menus by day for a given week code
     protected function formatMenu(Menu $menu): array
     {
         $catering = $menu->catering;

@@ -7,9 +7,7 @@ use Illuminate\Http\UploadedFile;
 
 class CreateCateringPair extends MenuAction
 {
-    /**
-     * Create a pair of menus for a given day & catering using a single image.
-     */
+    // Note: __invoke creates a pair of menus for a given day & catering using a single image
     public function __invoke(array $data, UploadedFile $image): array
     {
         $weekCode = $data['week_code'];

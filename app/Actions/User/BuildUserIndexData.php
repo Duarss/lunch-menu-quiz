@@ -7,6 +7,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class BuildUserIndexData extends UserAction
 {
+    // Note: __invoke builds paginated user index data based on search parameters
     public function __invoke(array $params = []): LengthAwarePaginator
     {
         $query = User::query()

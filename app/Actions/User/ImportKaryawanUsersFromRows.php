@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 
 class ImportKaryawanUsersFromRows extends UserAction
 {
+    // Note: __invoke imports karyawan users from the provided rows of data
     public function __invoke(array $rows): array
     {
         $created = [];

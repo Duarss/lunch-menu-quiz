@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StreamWeeklyReport
 {
+    // Note: __invoke streams the weekly report as an Excel file for the given week code
     public function __invoke(string $weekCode): StreamedResponse
     {
         $monday = Project::mondayFromMonthWeekCode($weekCode);
@@ -184,6 +185,7 @@ class StreamWeeklyReport
         ]);
     }
 
+    // Note: formatVendorLabel normalizes vendor names for display
     private function formatVendorLabel(?string $vendor): string
     {
         if ($vendor === null || $vendor === '') {

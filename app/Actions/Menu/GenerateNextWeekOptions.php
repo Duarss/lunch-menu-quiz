@@ -8,6 +8,7 @@ use Carbon\Carbon;
 
 class GenerateNextWeekOptions extends MenuAction
 {
+    // Note: __invoke generates menu options for the next week based on the current week's menus
     public function __invoke(): array
     {
         $tz = config('app.timezone', 'Asia/Jakarta');

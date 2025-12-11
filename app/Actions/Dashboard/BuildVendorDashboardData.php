@@ -10,10 +10,13 @@ use Carbon\Carbon;
 
 class BuildVendorDashboardData extends MenuAction
 {
+    // Note: SLIDE_CHUNK defines how many day summaries appear in each slide
     private const SLIDE_CHUNK = 2;
 
+    // Note: __construct injects the BuildVendorIndexData action dependency
     public function __construct(private BuildVendorIndexData $buildVendorIndexData) {}
 
+    // Note: __invoke builds the dashboard data for a vendor user
     public function __invoke(User $vendor, string $fallbackWeekCode): array
     {
         $vendorData = ($this->buildVendorIndexData)($vendor);
@@ -63,6 +66,7 @@ class BuildVendorDashboardData extends MenuAction
         ];
     }
 
+    // Note: buildSummaryCards creates summary cards for the vendor dashboard
     private function buildSummaryCards(string $weekCode, string $rangeLabel, int $filledSlots, int $totalSlots, int $progressPercent, int $remainingSlots, string $windowStatus, string $windowSubtitle): array
     {
         $remainingBadgeClass = $remainingSlots === 0 ? 'badge bg-success' : 'badge bg-warning text-white';
@@ -105,6 +109,7 @@ class BuildVendorDashboardData extends MenuAction
         ];
     }
 
+    // Note: buildDaySummaries creates summaries for each day in the week
     private function buildDaySummaries(array $dayOrder, array $days): array
     {
         $summaries = [];
@@ -174,6 +179,7 @@ class BuildVendorDashboardData extends MenuAction
         return $summaries;
     }
 
+    // Note: chunkSlides splits day summaries into slides for the dashboard
     private function chunkSlides(array $daySummaries): array
     {
         if (empty($daySummaries)) {
@@ -188,6 +194,7 @@ class BuildVendorDashboardData extends MenuAction
         );
     }
 
+    // Note: calculateSlotStats computes statistics about filled and total slots
     private function calculateSlotStats(array $dayOrder, array $days): array
     {
         $filled = 0;
@@ -218,6 +225,7 @@ class BuildVendorDashboardData extends MenuAction
         ];
     }
 
+    // Note: formatDateLabel formats a date string into a human-readable label
     private function formatDateLabel(?string $date): ?string
     {
         if (!$date) {
@@ -227,6 +235,7 @@ class BuildVendorDashboardData extends MenuAction
         return Carbon::parse($date)->format('D, d M Y');
     }
 
+    // Note: windowBadgeClass returns the CSS class for the window status badge
     private function windowBadgeClass(string $status): string
     {
         return match (strtolower($status)) {
@@ -238,6 +247,7 @@ class BuildVendorDashboardData extends MenuAction
         };
     }
 
+    // Note: resolveVendorLabel returns the vendor name based on the code
     private function resolveVendorLabel(?string $code): string
     {
         if ($code === null || $code === '') {
