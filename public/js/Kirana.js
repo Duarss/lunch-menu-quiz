@@ -619,6 +619,10 @@ function toLongDateDayTime(datetime) {
     let date = new Date(datetime)
     return days[date.getDay()] + ', ' + date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() + ' ' + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0')
 }
+function toShortTime(time) {
+    let timeParts = time.split(':')
+    return String(timeParts[0]).padStart(2, '0') + ':' + String(timeParts[1]).padStart(2, '0')
+}
 function toLongDateTime(datetime) {
     let date = new Date(datetime)
     return toLongDate(datetime) + ' ' + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0') + ':' + String(date.getSeconds()).padStart(2, "0")

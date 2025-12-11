@@ -8,17 +8,21 @@ use Illuminate\Support\Carbon;
 class LunchPickupWindow extends Model
 {
     protected $fillable = [
-        'day_of_week',
+        'date',
         'start_time',
         'end_time',
     ];
 
-    public const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday'];
-
     protected $casts = [
+        'date' => 'date',
         'start_time' => 'string',
         'end_time' => 'string',
     ];
+
+    public function getDateForInputAttribute(): ?string
+    {
+        return $this->date?->format('Y-m-d');
+    }
 
     public function getStartTimeForInputAttribute(): ?string
     {
@@ -36,10 +40,25 @@ class LunchPickupWindow extends Model
             return null;
         }
 
+        $formats = ['H:i:s', 'H:i'];
+
+        foreach ($formats as $format) {
+            try {
+                return Carbon::createFromFormat($format, $time)->format('H:i');
+            } catch (\Throwable $e) {
+                // continue trying other formats
+            }
+        }
+
         try {
-            return Carbon::createFromFormat('H:i:s', $time)->format('H:i');
+            return Carbon::parse($time)->format('H:i');
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'date';
     }
 }

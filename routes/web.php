@@ -34,8 +34,9 @@ Route::middleware(['auth', 'web'])->group(function () {
         ->parameters(["master-user" => "masterUser"])
         ->names("masterUser");
 
-    Route::get('master/lunch-window', [LunchPickupWindowController::class, 'index'])->name('lunchWindow.index');
-    Route::put('master/lunch-window', [LunchPickupWindowController::class, 'update'])->name('lunchWindow.update');
+    Route::apiResource("master/lunch-pickup-window", LunchPickupWindowController::class)
+        ->parameters(["master-lunch-pickup-window" => "masterLunchPickupWindow"])
+        ->names("masterLunchPickupWindow");
 
     Route::get('master/user/{user}/details', [UserController::class, 'viewDetails'])
         ->name('masterUser.details');
@@ -66,6 +67,7 @@ Route::middleware(['auth', 'web'])->group(function () {
 
     Route::group(["prefix" => "datatables", "as" => "datatables."], function () {
         Route::post("master-user", [DatatableController::class, "masterUser"])->name("master-user");
+        Route::post('lunch-windows', [DatatableController::class, 'lunchPickupWindows'])->name('lunch-windows');
     });
 
     Route::group(["prefix" => "select2", "as" => "select2."], function () {

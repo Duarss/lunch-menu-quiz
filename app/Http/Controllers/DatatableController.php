@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LunchPickupWindow;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 
@@ -23,12 +25,12 @@ class DatatableController extends Controller
 
                 $query->where(function ($q) use ($search) {
                     $q->where(DB::raw('lower(username)'), 'like', "%{$search}%")
-                    ->orWhere(DB::raw('lower(name)'), 'like', "%{$search}%")
-                    ->orWhereHas('company', function ($companyQuery) use ($search) {
-                        $companyQuery
-                            ->where(DB::raw('lower(name)'), 'like', "%{$search}%")
-                            ->orWhere(DB::raw('lower(code)'), 'like', "%{$search}%");
-                    });
+                        ->orWhere(DB::raw('lower(name)'), 'like', "%{$search}%")
+                        ->orWhereHas('company', function ($companyQuery) use ($search) {
+                            $companyQuery
+                                ->where(DB::raw('lower(name)'), 'like', "%{$search}%")
+                                ->orWhere(DB::raw('lower(code)'), 'like', "%{$search}%");
+                        });
                 });
             }
 
@@ -61,5 +63,27 @@ class DatatableController extends Controller
                 })
                 ->toJson();
         }
+    }
+
+    public function lunchPickupWindows(Request $request)
+    {
+        $this->authorize('viewAny', LunchPickupWindow::class);
+
+        $query = LunchPickupWindow::query()->select(['id', 'date', 'start_time', 'end_time']);
+
+        return DataTables::of($query)
+            ->addColumn('date', function (LunchPickupWindow $window) {
+                return ($window->date)->format('Y-m-d');
+            })
+            ->addColumn('start_time', function (LunchPickupWindow $window) {
+                return $window ? $window->start_time : null;
+            })
+            ->addColumn('end_time', function (LunchPickupWindow $window) {
+                return $window ? $window->end_time : null;
+            })
+            ->order(function ($builder) {
+                $builder->orderBy('date');
+            })
+            ->toJson();
     }
 }

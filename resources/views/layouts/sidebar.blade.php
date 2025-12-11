@@ -28,7 +28,7 @@
       <x-menu label="Master Menu" icon="bxs bx-restaurant" route-name="masterMenu.index" />
     @endcan
     @can('viewAny', App\Models\LunchPickupWindow::class)
-      <x-menu label="Set Jam Makan" icon="bxs bx-time-five" route-name="lunchWindow.index" />
+      <x-menu label="Set Jam Makan" icon="bxs bx-time-five" route-name="masterLunchPickupWindow.index" />
     @endcan
     @can('viewAny', App\Models\Report::class)
       <x-menu label="Master Report" icon="bxs bx-line-chart" route-name="masterReport.index" />
