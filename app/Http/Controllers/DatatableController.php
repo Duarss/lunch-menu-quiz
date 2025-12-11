@@ -56,7 +56,7 @@ class DatatableController extends Controller
                 })
                 ->rawColumns(["details", "action"])
                 ->order(function ($query) {
-                    $query->orderByDesc("updated_at");
+                    $query->orderBy("name", "asc");
                 })
                 ->toJson();
         }

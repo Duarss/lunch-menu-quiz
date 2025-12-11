@@ -19,10 +19,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // Lock upcoming week selections every Friday night
-        // $schedule->command('menus:lock-weekly-selections')
-        //     ->timezone(config('app.timezone', 'Asia/Jakarta'))
-        //     ->fridays()
-        //     ->at('23:59');
+        $schedule->command('menus:lock-weekly-selections')
+            ->timezone(config('app.timezone', 'Asia/Jakarta'))
+            ->fridays()
+            ->at('23:59');
     }
 
     /**
