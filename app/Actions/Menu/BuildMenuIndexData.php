@@ -485,7 +485,7 @@ class BuildMenuIndexData extends MenuAction
         $pendingBadgeClass = $pendingCount ? 'bg-warning text-white' : 'bg-success';
         $pendingBadgeText = $pendingCount ? 'Butuh Dipilih' : 'Semua Dipilih';
         $pendingCardClass = $pendingCount ? 'card-border-shadow-warning' : 'card-border-shadow-primary';
-        $windowStatusLabel = $windowOpen ? 'Open' : ($windowReady ? 'Ready Soon' : 'Closed');
+        $windowStatusLabel = $windowOpen ? 'Buka' : ($windowReady ? 'Segera Siap' : 'Tutup');
         $windowStatusBadgeClass = $windowOpen ? 'bg-success' : ($windowReady ? 'bg-success text-white' : 'bg-danger');
 
         return [

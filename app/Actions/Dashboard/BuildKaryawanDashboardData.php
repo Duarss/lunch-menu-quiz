@@ -34,7 +34,7 @@ class BuildKaryawanDashboardData
         $days = [];
         $dayCursor = $rangeStartCarbon->copy();
         $completed = 0;
-        $pendingSubtitle = 'Due by ' . $windowEnd->copy()->format('D, d M H:i');
+        $pendingSubtitle = 'Terakhir diisi pada ' . $windowEnd->copy()->format('D, d M H:i');
 
         for ($i = 0; $i < count(self::DAY_LABELS); $i++) {
             $dateKey = $dayCursor->toDateString();
@@ -76,7 +76,7 @@ class BuildKaryawanDashboardData
         $remaining = max(0, count(self::DAY_LABELS) - $completed);
 
         if ($windowOpen) {
-            $windowStatusLabel = 'Open';
+            $windowStatusLabel = 'Buka';
             $windowSubtitle = 'Submit before ' . $windowEnd->copy()->format('D, d M H:i');
             $windowBadgeClass = 'bg-success';
             $ctaLabel = $remaining > 0 ? 'Lengkapi Pilihan Saya' : 'Tinjau Pilihan Saya';
@@ -86,7 +86,7 @@ class BuildKaryawanDashboardData
             $windowBadgeClass = 'bg-warning text-white';
             $ctaLabel = 'Lihat Menu Minggu Depan';
         } else {
-            $windowStatusLabel = 'Closed';
+            $windowStatusLabel = 'Tutup';
             $windowSubtitle = 'Opens ' . $windowStart->copy()->format('D, d M H:i');
             $windowBadgeClass = 'bg-warning text-white';
             $ctaLabel = 'Lihat Menu Minggu Depan';

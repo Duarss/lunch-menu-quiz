@@ -400,8 +400,36 @@
         });
 
         $(document).on('click', '#btn-reset', function () {
+            const current = serializeWindows()
+            const baseline = normalizeWindows(resetSnapshot)
+
+            // Fungsi untuk membandingkan dua array window secara deep
+            function arraysEqual(arr1, arr2) {
+                if (arr1.length !== arr2.length) return false;
+                
+                for (let i = 0; i < arr1.length; i++) {
+                    const w1 = arr1[i];
+                    const w2 = arr2[i];
+                    
+                    if (w1.date !== w2.date) return false;
+                    if (w1.start_time !== w2.start_time) return false;
+                    if (w1.end_time !== w2.end_time) return false;
+                    // id tidak perlu dibandingkan karena tidak diedit user
+                }
+                
+                return true;
+            }
+
+            const hasChanges = !arraysEqual(current, baseline);
+
+            if (!hasChanges) {
+                Swal.fire('Informasi', 'Tidak ada perubahan yang perlu di-reset.', 'info');
+                return;
+            }
+
+            // Langsung reset tanpa konfirmasi jika ada perubahan
             loadWindowsFromData(resetSnapshot);
-        });
+        })
     });
 </script>
 <template id="window-row-template">
