@@ -112,6 +112,13 @@ abstract class MenuAction
         };
     }
 
+    protected function expectedMenusForVendor(string $catering): int
+    {
+        $slots = $this->vendorSlotMap($catering);
+        $daysPerWeek = 4; // Mon–Thu
+        return count($slots) * $daysPerWeek; // 4 days: Mon–Thu
+    }
+
     // Note: resolveMenuDate computes the menu date for a given week code and day
     protected function resolveMenuDate(string $weekCode, string $day): string
     {

@@ -17,14 +17,23 @@ class BuildVendorIndexData extends MenuAction
         $catering = $this->resolveVendorCatering($vendor);
 
         $targetMonday = $now->copy()->next(Carbon::MONDAY);
-        $creation = $this->resolveNextCreationWeek($targetMonday);
-        /** @var Carbon $weekMonday */
-        $weekMonday = $creation['monday'];
-        $weekCode = $creation['code'];
+
+        $weekMonday = $targetMonday;
+        $weekCode = Project::monthWeekCode($weekMonday);
+
         $rangeStart = $weekMonday->toDateString();
         $rangeEnd = $weekMonday->copy()->addDays(3)->toDateString();
 
         $slotMap = $this->vendorSlotMap($catering);
+
+        $expectedForVendor = $this->expectedMenusForVendor($catering);
+
+        // vendor-specific count for UI (not global week count)
+        $existingCount = Menu::where('code', 'like', $weekCode . '-%')
+            ->where('catering', $catering)
+            ->count();
+
+        $vendorWeekComplete = $existingCount >= $expectedForVendor;
 
         $menus = Menu::where('code', 'like', $weekCode . '-%')
             ->where('catering', $catering)
@@ -80,7 +89,11 @@ class BuildVendorIndexData extends MenuAction
             'vendorRangeEnd' => $rangeEnd,
             'selectionWindowReady' => Project::isSelectionWindowReady($weekCode),
             'selectionWindowOpen' => Project::isSelectionWindowOpen($now),
-            'vendorExistingCount' => $creation['existing_count'],
+
+            'vendorExistingCount' => $existingCount,
+            'vendorExpectedCount' => $expectedForVendor,
+            'vendorWeekComplete' => $vendorWeekComplete,
+            'vendorProgressText' => sprintf('%d / %d Menu Terisi', $existingCount, $expectedForVendor),
         ];
     }
 }
