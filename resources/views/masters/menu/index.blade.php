@@ -122,12 +122,18 @@
 										</button>
 
 										@if(!empty($group['image_url']))
-											<img
-												src="{{ $group['image_url'] }}"
-												alt="{{ $group['catering_label'] ?? 'Vendor' }}"
-												class="rounded mb-2"
-												style="width:100%;height:350px;object-fit:cover"
+											<a
+												href="{{ $group['image_url'] }}"
+												data-fancybox
+												data-caption="Menu dari {{ $group['catering_label'] ?? 'Vendor' }}"
 											>
+												<img
+													src="{{ $group['image_url'] }}"
+													alt="{{ $group['catering_label'] ?? 'Vendor' }}"
+													style="width:100%;height:350px;object-fit:scale-down"
+													class="rounded mb-2"
+												>
+											</a>
 										@else
 											<div
 												class="d-flex align-items-center justify-content-center bg-secondary text-white rounded mb-2"
@@ -238,7 +244,7 @@
 											<input type="file" class="form-control form-control-sm vendor-menu-image-day" accept="image/*">
 											<div class="mt-2 vendor-preview-wrapper">
 												@if(!empty($vendorSlide['primary_image_url']))
-													<img src="{{ $vendorSlide['primary_image_url'] }}" alt="{{ $vendorSlide['image_alt'] ?? 'Menu image' }}" class="img-fluid rounded vendor-menu-preview" style="max-height:200px;object-fit:cover;">
+													<img src="{{ $vendorSlide['primary_image_url'] }}" alt="{{ $vendorSlide['image_alt'] ?? 'Menu image' }}" class="img-fluid rounded vendor-menu-preview" style="max-height:200px;object-fit:scale-down;">
 												@else
 													<div class="text-muted small fst-italic">Belum ada gambar.</div>
 												@endif
@@ -302,7 +308,7 @@
 							@elseif($windowReady)
 								Window opens Wed-Fri. Check back to submit choices.
 							@else
-								Admin is still preparing menus. Your last saved choices stay on hold.
+								Vendor is still preparing menus. Your last saved choices stay on hold.
 							@endif
 						</div>
 					</div>
@@ -349,14 +355,14 @@
 		</div>
 		<div class="card p-3 mb-3">
 			<h6 class="mb-2">
-				Select Menus For Week <code>{{ $weekCode }}</code>
+				Pilih Menu Untuk Minggu <code>{{ $weekCode }}</code>
 			</h6>
 
 			@if(!empty($rangeStartLabel) && !empty($rangeEndLabel))
 				<p class="small text-muted mb-2">
-					For lunches from
+					Menu makan siang dari
 					<strong>{{ $rangeStartLabel }}</strong>
-					to
+					ke
 					<strong>{{ $rangeEndLabel }}</strong>.
 				</p>
 			@endif
@@ -418,12 +424,18 @@
 										<div class="col-md-6">
 											<div class="menu-select-card border rounded p-3 mb-3 bg-light position-relative {{ !empty($group['is_selected']) ? 'selected' : '' }}">
 												@if(!empty($group['image_url']))
-													<img
-														src="{{ $group['image_url'] }}"
-														alt="{{ $group['catering_label'] ?? 'Vendor' }}"
-														style="width:100%;height:350px;object-fit:cover"
-														class="rounded mb-2"
+													<a
+														href="{{ $group['image_url'] }}"
+														data-fancybox
+														data-caption="Menu dari {{ $group['catering_label'] ?? 'Vendor' }}"
 													>
+														<img
+															src="{{ $group['image_url'] }}"
+															alt="{{ $group['catering_label'] ?? 'Vendor' }}"
+															style="width:100%;height:350px;object-fit:scale-down"
+															class="rounded mb-2"
+														>
+													</a>
 												@else
 													<div
 														class="d-flex align-items-center justify-content-center bg-secondary text-white rounded mb-2"
@@ -707,6 +719,18 @@
 
 @push('js')
 <script>
+Fancybox.bind('[data-fancybox]', {
+	Thumbnails: {
+		autoStart: false,
+	},
+	Toolbar: {
+		display: [
+			"close",
+		],
+	},
+});
+
+
 const WEEK_CODE         = @json($weekCode ?? null);
 const CREATE_WEEK_CODE  = @json($creationWeekCode ?? $weekCode ?? null);
 const MENU_DETAILS      = @json($menuDetails ?? []);
