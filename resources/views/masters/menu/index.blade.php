@@ -130,14 +130,14 @@
 												<img
 													src="{{ $group['image_url'] }}"
 													alt="{{ $group['catering_label'] ?? 'Vendor' }}"
-													style="width:100%;height:350px;object-fit:scale-down"
+													style="width:100%;height:400px;object-fit:scale-down"
 													class="rounded mb-2"
 												>
 											</a>
 										@else
 											<div
 												class="d-flex align-items-center justify-content-center bg-secondary text-white rounded mb-2"
-												style="width:100%;height:350px;font-size:14px"
+												style="width:100%;height:400px;font-size:14px"
 											>
 												No Img
 											</div>
@@ -432,14 +432,14 @@
 														<img
 															src="{{ $group['image_url'] }}"
 															alt="{{ $group['catering_label'] ?? 'Vendor' }}"
-															style="width:100%;height:350px;object-fit:scale-down"
+															style="width:100%;height:400px;object-fit:scale-down"
 															class="rounded mb-2"
 														>
 													</a>
 												@else
 													<div
 														class="d-flex align-items-center justify-content-center bg-secondary text-white rounded mb-2"
-														style="width:100%;height:350px;font-size:14px"
+														style="width:100%;height:400px;font-size:14px"
 													>
 														No Img
 													</div>
