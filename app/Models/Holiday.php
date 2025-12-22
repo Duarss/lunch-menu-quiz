@@ -9,7 +9,7 @@ class Holiday extends Model
 {
     use HasFactory;
 
-    protected $table = "lmq_leave_date";
+    protected $table = "leave_date";
 
     protected $fillable = [
         "substitute_date",
