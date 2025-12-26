@@ -66,7 +66,7 @@
 	<h5 class="mt-4 mb-3">Upcoming Week Prep</h5>
 	<div class="d-flex flex-wrap align-items-start gap-3 mb-3">
 		<x-card-data id="upcoming-prep" title="Days Ready" :value="(($prep['days_ready'] ?? 0).' / 4')" subtitle="Full days" icon="bx-calendar" unit="" colour="primary" />
-		<x-card-data id="upcoming-week-code" title="Upcoming Code" :value="($prep['code'] ?? '—')" subtitle="Week code" icon="bx-hash" unit="" colour="primary" />
+		<x-card-data id="upcoming-week-code" title="Upcoming Code" :value="($prep['code'] ?? '—')" subtitle="Identifier" icon="bx-hash" unit="" colour="primary" />
 	</div>
 	<div class="card p-3 mb-3">
 		<h6 class="mb-3">Upcoming Week Menus</h6>

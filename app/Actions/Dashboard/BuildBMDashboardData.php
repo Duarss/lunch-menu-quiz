@@ -98,7 +98,7 @@ class BuildBMDashboardData extends MenuAction
         $upcomingSummaryCards = [
             [
                 'id' => 'upcoming-code',
-                'title' => 'Upcoming Week Code',
+                'title' => 'Upcoming Code',
                 'value' => $upcomingWeek['code'],
                 'subtitle' => 'Identifier',
                 'icon' => 'bx-hash',
