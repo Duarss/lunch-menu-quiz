@@ -355,6 +355,7 @@ class BuildBMDashboardData extends MenuAction
                     'url' => route('bm.reports.export', $report->code),
                     'label' => $entry['label'],
                     'icon' => 'bx-download',
+                    'method' => 'POST',
                 ],
                 'notification' => $report->exported_at ? [
                     'id' => 'exported-' . $entry['key'],

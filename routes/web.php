@@ -120,9 +120,9 @@ Route::middleware(['auth', 'web'])->group(function () {
         //     return response("BM Report detail for $report (to be implemented)", 200);
         // })->name('reports.show');
 
-        // Route::get('/reports/{report}/export', function ($report) {
-        //     return response("BM Report export for $report (to be implemented)", 200);
-        // })->name('reports.export');
+        Route::post('/reports/{report}/export', function ($report) {
+            return redirect()->route('masterReport.export', ['masterReport' => $report]);
+        })->name('reports.export');
     });
 
     // Karyawan named route placeholders used by karyawan dashboard

@@ -19,9 +19,9 @@
 
 	<h5 class="mt-4 mb-3">Export & Reports</h5>
 	<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-		@foreach($exportOptions as $option)
+		{{-- @foreach($exportOptions as $option)
 			@if(!empty($option['button']))
-				<x-button :url="$option['button']['url']" :label="$option['button']['label']" :icon="$option['button']['icon']" />
+				<x-button :url="$option['button']['url']" :label="$option['button']['label']" :icon="$option['button']['icon']" method="POST" />
 			@elseif(!empty($option['notification']))
 				<x-card-notification
 					:id="$option['notification']['id']"
@@ -30,7 +30,7 @@
 					:time="$option['notification']['time']"
 				/>
 			@endif
-		@endforeach
+		@endforeach --}}
 		<x-button :url="$allReportsUrl" label="All Reports" icon="bx-file" />
 	</div>
 	@if(!empty($exportOptions))
