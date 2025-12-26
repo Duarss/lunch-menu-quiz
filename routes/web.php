@@ -89,35 +89,40 @@ Route::middleware(['auth', 'web'])->group(function () {
 
         // Placeholder routes for reports and analytics (replace with real controllers later)
         Route::get('/reports', function () {
-            return response('Reports index (to be implemented)', 200);
+            return redirect()->route('masterReport.index');
         })->name('reports.index');
 
-        Route::get('/reports/show', function () {
-            return response('Report detail view (to be implemented)', 200);
-        })->name('reports.show');
+        // Route::get('/reports/show', function () {
+        //     return response('Report detail view (to be implemented)', 200);
+        // })->name('reports.show');
 
-        Route::get('/reports/export', function () {
-            return response('Reports export (to be implemented)', 200);
-        })->name('reports.export');
+        // Route::get('/reports/export', function () {
+        //     return response('Reports export (to be implemented)', 200);
+        // })->name('reports.export');
     });
 
     // BM named route placeholders used by BM dashboard
     Route::prefix('bm')->name('bm.')->group(function () {
+
+        Route::get('/users', function () {
+            return redirect()->route('masterUser.index');
+        })->name('users.index');
+
+        Route::get('/menus', function () {
+            return redirect()->route('masterMenu.index');
+        })->name('menus.index');
+
         Route::get('/reports', function () {
-            return response('BM Reports index (to be implemented)', 200);
+            return redirect()->route('masterReport.index');
         })->name('reports.index');
 
-        Route::get('/reports/{report}', function ($report) {
-            return response("BM Report detail for $report (to be implemented)", 200);
-        })->name('reports.show');
+        // Route::get('/reports/{report}', function ($report) {
+        //     return response("BM Report detail for $report (to be implemented)", 200);
+        // })->name('reports.show');
 
-        Route::get('/reports/{report}/export', function ($report) {
-            return response("BM Report export for $report (to be implemented)", 200);
-        })->name('reports.export');
-
-        Route::get('/users/{user}', function ($user) {
-            return response("BM User detail for $user (to be implemented)", 200);
-        })->name('users.show');
+        // Route::get('/reports/{report}/export', function ($report) {
+        //     return response("BM Report export for $report (to be implemented)", 200);
+        // })->name('reports.export');
     });
 
     // Karyawan named route placeholders used by karyawan dashboard
